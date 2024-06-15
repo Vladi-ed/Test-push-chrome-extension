@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Vladi's Push test Chrome extension",
+  "version": "1.0.1",
+  "permissions": ["notifications", "storage", "background"],
+  "action": {
+    "default_title": "Push test",
+    "default_icon": {
+      "19": "images/night-19.png",
+      "38": "images/night-38.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/background.ts",
+    "type": "module"
+  },
+  "icons": {
+    "16": "images/icon-16.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png"
+  }
+}
