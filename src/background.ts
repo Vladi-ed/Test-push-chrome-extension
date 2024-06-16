@@ -1,6 +1,11 @@
+import {openUrl} from "./helpers/openUrl.ts";
+import {getCatFact} from "./helpers/getCatFact.ts";
+import {showNotification} from "./helpers/showNotification.ts";
+
+
 let enable = false;
 
-// on startup
+// on startup when the browser starts up
 chrome.runtime.onStartup.addListener(function () {
     console.log('onStartup');
 });
@@ -16,8 +21,8 @@ chrome.action.onClicked.addListener(function () {
     });
     chrome.action.setTitle({ title: enable ? 'Disable' : 'Enable' });
 
-    if (enable) startHeartbeat().then(() => console.log('startHeartbeat()'));
-    else stopHeartbeat().then(() => console.log('stopHeartbeat()'));
+    if (enable) startHeartbeatInterval().then(() => console.log('startHeartbeat()'));
+    else stopHeartbeatInterval().then(() => console.log('stopHeartbeat()'));
 
 });
 
@@ -32,7 +37,11 @@ chrome.action.onClicked.addListener(function () {
 let heartbeatInterval: number | undefined;
 
 async function runHeartbeat() {
-    getCatFact();
+    const fact = await getCatFact();
+    await showNotification(fact); // Display notification
+
+    // await openUrl(chrome.runtime.getURL('index.html'));
+
     await chrome.storage.local.set({ 'last-heartbeat': new Date().getTime() });
 }
 
@@ -41,7 +50,7 @@ async function runHeartbeat() {
  * this sparingly when you are doing work which requires persistence, and call
  * stopHeartbeat once that work is complete.
  */
-async function startHeartbeat() {
+async function startHeartbeatInterval() {
     // Run the heartbeat once at service worker startup.
     runHeartbeat().then(() => {
         // Then again every 20 seconds.
@@ -49,57 +58,20 @@ async function startHeartbeat() {
     });
 }
 
-async function stopHeartbeat() {
+async function stopHeartbeatInterval() {
     clearInterval(heartbeatInterval);
 }
 
-/**
- * Returns the last heartbeat stored in extension storage, or undefined if
- * the heartbeat has never run before.
- */
-async function getLastHeartbeat() {
-    return (await chrome.storage.local.get('last-heartbeat'))['last-heartbeat'];
-}
 
-
-async function getCatFact() {
-    console.log('getCatFact()')
-    try {
-        const response = await fetch('https://catfact.ninja/fact');
-        const data = await response.json();
-        showNotification(data.fact); // Display notification
-    } catch (error) {
-        console.error('Error fetching cat fact data:', error);
-    }
-}
-
-// Handle notifications
-function showNotification(body: string) {
-    const options: chrome.notifications.NotificationOptions = {
-        title: "Cat Fact",
-        message: body,
-        type: 'image',
-        iconUrl: 'https://cataas.com/cat?type=square',
-        imageUrl: 'https://cataas.com/cat?width=668&height=304',
-        buttons: [{title: 'Click'}, {title: 'Dismiss'}],
-        priority: 0,
-        requireInteraction: false,
-    };
-
-    chrome.notifications.create(options);
-}
-
-
-chrome.notifications.onClicked.addListener(async () => {
-    const current = await chrome.windows.getCurrent();
-
-    if (current.id) chrome.tabs.create({url: 'https://google.com'});
-    else chrome.windows.create({url: 'https://google.com'})
+chrome.notifications.onClicked.addListener(() => {
+    openUrl('https://cataas.com/cat?type=square');
 });
 
 chrome.notifications.onButtonClicked.addListener((_, buttonIndex) => {
     // if first button clicked
     if (buttonIndex == 0) {
-        chrome.tabs.create({url: 'https://google.com'});
+        openUrl(chrome.runtime.getURL('index.html'));
     }
 })
+
+

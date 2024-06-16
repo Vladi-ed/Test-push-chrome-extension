@@ -1,19 +1,14 @@
 import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.ts'
+import {getLastHeartbeat} from "./helpers/getLastHeartbeat.ts";
+import {getCatFact} from "./helpers/getCatFact.ts";
+
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-
+    <img src="https://cataas.com/cat" class="pic" alt="Cat picture" />
+  
     <div class="card">
-      <button id="counter" type="button"></button>
+    
     </div>
     <p class="read-the-docs">
       Click on the Vite and TypeScript logos to learn more
@@ -21,4 +16,14 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   </div>
 `
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+getLastHeartbeat().then(last => {
+    let lastDate: string;
+    if (last)
+        lastDate = new Date(last).toLocaleTimeString();
+    else
+        lastDate = "no last date";
+
+    document.querySelector('.read-the-docs')!.innerHTML = lastDate;
+})
+
+getCatFact().then(fact => document.querySelector('.card')!.innerHTML = fact);
