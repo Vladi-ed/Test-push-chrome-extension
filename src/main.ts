@@ -5,6 +5,11 @@ import {getCatFact} from "./helpers/getCatFact.ts";
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
+<!--    <audio id="myAudio" autoplay>-->
+<!--        <source src="cat-meow-85175.mp3" type="audio/mpeg">-->
+<!--        Your browser does not support the audio element.-->
+<!--    </audio>-->
+
     <img src="https://cataas.com/cat" class="pic" alt="Cat picture" />
   
     <div class="card">
@@ -26,4 +31,8 @@ getLastHeartbeat().then(last => {
     document.querySelector('.read-the-docs')!.innerHTML = lastDate;
 })
 
-getCatFact().then(fact => document.querySelector('.card')!.innerHTML = fact);
+const audio = new Audio('cat-meow-85175.mp3');
+
+getCatFact()
+    .then(fact => document.querySelector('.card')!.innerHTML = fact)
+    .then(() => audio.play());

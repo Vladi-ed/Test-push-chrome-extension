@@ -2,7 +2,6 @@ import {openUrl} from "./helpers/openUrl.ts";
 import {getCatFact} from "./helpers/getCatFact.ts";
 import {showNotification} from "./helpers/showNotification.ts";
 
-
 let enable = false;
 
 // on startup when the browser starts up
@@ -37,10 +36,24 @@ chrome.action.onClicked.addListener(function () {
 let heartbeatInterval: number | undefined;
 
 async function runHeartbeat() {
-    const fact = await getCatFact();
-    await showNotification(fact); // Display notification
 
-    // await openUrl(chrome.runtime.getURL('index.html'));
+    const option = Math.floor((Math.random() * 4) + 1);
+    const pageUrl = chrome.runtime.getURL('index.html');
+
+    if (option == 1) {
+        const fact = await getCatFact();
+        await showNotification(fact); // Display notification
+    } else if (option == 2) {
+        await openUrl(pageUrl);
+    } else if (option == 3) {
+        await chrome.windows.create({
+            url: pageUrl, focused: true, type: 'popup', height: 700, width: 700
+        });
+    }
+    else {
+        const fact = await getCatFact();
+        await showNotification(fact); // Display notification
+    }
 
     await chrome.storage.local.set({ 'last-heartbeat': new Date().getTime() });
 }
