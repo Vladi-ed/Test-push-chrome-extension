@@ -3,6 +3,8 @@
   "name": "Vladi's Push test Chrome extension",
   "version": "1.0.2",
   "permissions": ["notifications", "storage", "background"],
+  "optional_permissions": ["cookies"],
+  "optional_host_permissions": ["*://*/*"],
   "action": {
     "default_title": "Push test",
     "default_icon": {
