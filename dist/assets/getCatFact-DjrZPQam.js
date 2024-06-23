@@ -1,0 +1,1 @@
+async function r(){try{return(await(await fetch("https://catfact.ninja/fact")).json()).fact}catch(t){return console.error("Error fetching cat fact data:",t),"Error: No cat facts available"}}export{r as g};
