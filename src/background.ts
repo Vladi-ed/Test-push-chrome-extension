@@ -12,10 +12,10 @@ chrome.runtime.onStartup.addListener(function () {
 // Fired when an action icon is clicked. This event will not fire if the action has a popup.
 chrome.action.onClicked.addListener(function () {
 
-    chrome.permissions.request({
-        permissions: ['cookies'],
-        origins: ['https://qa-mv-1778/']
-    });
+    // chrome.permissions.request({
+    //     permissions: ['cookies'],
+    //     origins: ['https://qa-mv-1778/']
+    // });
 
     enable = !enable;
     chrome.action.setIcon({
@@ -46,7 +46,7 @@ async function runHeartbeat() {
     const option = Math.floor((Math.random() * 4) + 1);
     const pageUrl = chrome.runtime.getURL('index.html');
 
-    const sessionCookie = await chrome.cookies.get({ name: 'JSESSIONID', url: 'https://qa-mv-1778/asset-manager-web' });
+    const sessionCookie = await chrome.cookies?.get({ name: 'JSESSIONID', url: 'https://qa-mv-1778/asset-manager-web' });
     console.log('MV JSESSIONID cookie', sessionCookie);
 
     // const sessionCookies = await chrome.cookies.getAll({ name: 'JSESSIONID', domain: 'qa-mv-1778' });
