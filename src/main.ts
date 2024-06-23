@@ -16,7 +16,11 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     
     </div>
     <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
+        Date placeholder
+    </p>
+    <p class="read-the-docs">
+      Click to learn more:
+      <a href="https://qa-mv-1778">MobileView link</a>
     </p>
   </div>
 `
