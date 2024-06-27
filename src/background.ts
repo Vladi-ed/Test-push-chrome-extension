@@ -5,6 +5,11 @@ import {showNotification} from "./helpers/showNotification.ts";
 let enable = false;
 let heartbeatInterval: number | undefined;
 
+chrome.runtime.onInstalled.addListener(() => {
+    console.log('onInstalled');
+});
+
+
 // on startup when the browser starts up
 chrome.runtime.onStartup.addListener(function () {
     console.log('onStartup');
@@ -60,7 +65,6 @@ async function runHeartbeat() {
         await showNotification(fact); // Display notification
     } else if (option == 2) {
         await openUrl(pageUrl);
-
     } else if (option == 3) {
         await chrome.windows.create({
             url: pageUrl, focused: true, type: 'popup', height: 700, width: 700
