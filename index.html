@@ -15,3 +15,28 @@
 <!--useful links-->
 <!--https://developer.chrome.com/docs/extensions/develop/concepts/permission-warnings#warnings-->
 <!--https://developer.chrome.com/docs/extensions/develop/concepts/activeTab-->
+
+
+<!--In order to deploy the extension self-hosted you need these policies:-->
+<!-- - ExtensionInstallForcelist (to automatically install and not able to disable)-->
+<!--or-->
+<!-- - ExtensionInstallSources-->
+<!-- - ExtensionInstallAllowlist-->
+<!--to allow user to install it from a specific website.-->
+
+<!--Example reg file:-->
+
+<!--Windows Registry Editor Version 5.00-->
+
+<!--[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome]-->
+
+<!--[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome\ExtensionInstallAllowlist]-->
+<!--"1"="bedjhbdnaijpdihemaemopkddmihhfjc"-->
+
+<!--[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome\ExtensionInstallForcelist]-->
+<!--"1"="bedjhbdnaijpdihemaemopkddmihhfjc;https://vladi.pages.dev/release/manifest.xml"-->
+
+<!--[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome\ExtensionInstallSources]-->
+<!--"1"="https://vladi.pages.dev/*"-->
+
+

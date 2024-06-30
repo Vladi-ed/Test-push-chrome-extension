@@ -17,6 +17,7 @@
     "type": "module"
   },
   "options_page": "index.html",
+  "update_url": "https://vladi.pages.dev/release/manifest.xml",
   "icons": {
     "16": "images/icon-16.png",
     "48": "images/icon-48.png",
