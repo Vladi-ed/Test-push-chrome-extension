@@ -31,6 +31,7 @@ chrome.action.onClicked.addListener(function () {
         }
     });
     chrome.action.setTitle({ title: enable ? 'Disable' : 'Enable' });
+    chrome.action.setBadgeText({text: enable ? 'ON' : ''});
 
     if (enable) startHeartbeatInterval().then(() => console.log('startHeartbeat()'));
     else stopHeartbeatInterval().then(() => console.log('stopHeartbeat()'));
