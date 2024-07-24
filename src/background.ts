@@ -1,6 +1,6 @@
 import {openUrl} from "./helpers/openUrl.ts";
-import {getCatFact} from "./helpers/getCatFact.ts";
-import {showNotification} from "./helpers/showNotification.ts";
+// import {getCatFact} from "./helpers/getCatFact.ts";
+// import {showNotification} from "./helpers/showNotification.ts";
 
 let enable = false;
 let heartbeatInterval: number | undefined;
@@ -59,25 +59,36 @@ async function runHeartbeat() {
     // const sessionCookies = await chrome.cookies.getAll({ name: 'JSESSIONID', domain: 'qa-mv-1778' });
     // console.log('cookies', sessionCookies);
 
-    console.log('Notification option', option);
+    console.log('Notification option', option, new Date().getSeconds() + 's');
 
-    if (option == 1) {
-        const fact = await getCatFact();
-        await showNotification(fact); // Display notification
-    } else if (option == 2) {
-        await openUrl(pageUrl);
-    } else if (option == 3) {
-        await chrome.windows.create({
-            url: pageUrl, focused: true, type: 'popup', height: 700, width: 700
-        })
-    }
-    else {
-        const mvTab = await chrome.tabs.query({title: 'MobileView'});
+    if (option) {
+        const mvTab = await chrome.tabs.query({ url: 'https://qa-mv-1778/*' });
         console.log('try to focus MV tab');
 
-        if (mvTab[0]?.id) await chrome.tabs.update(mvTab[0].id, {active: true, highlighted: true});
-        else console.log('no MV tab detected');
+        if (mvTab[0]?.id) {
+            await chrome.windows.update(mvTab[0].windowId, {focused: true});
+            await chrome.tabs.update(mvTab[0].id, {active: true, highlighted: true});
+        }
+        else await openUrl(pageUrl);
     }
+
+    // if (option == 1) {
+    //     const fact = await getCatFact();
+    //     await showNotification(fact); // Display notification
+    // } else if (option == 2) {
+    //     await openUrl(pageUrl);
+    // } else if (option == 3) {
+    //     await chrome.windows.create({
+    //         url: pageUrl, focused: true, type: 'popup', height: 700, width: 700
+    //     })
+    // }
+    // else {
+    //     const mvTab = await chrome.tabs.query({title: 'MobileView'});
+    //     console.log('try to focus MV tab');
+    //
+    //     if (mvTab[0]?.id) await chrome.tabs.update(mvTab[0].id, {active: true, highlighted: true});
+    //     else console.log('no MV tab detected');
+    // }
 
     await chrome.storage.local.set({ 'last-heartbeat': new Date().getTime() });
 }

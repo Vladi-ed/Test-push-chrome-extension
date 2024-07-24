@@ -10,7 +10,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <!--        Your browser does not support the audio element.-->
 <!--    </audio>-->
 
-    <img src="https://cataas.com/cat" class="pic" alt="Cat picture" />
+<!--    <img src="https://cataas.com/cat" class="pic" alt="Cat picture" />-->
   
     <div class="card">
     
