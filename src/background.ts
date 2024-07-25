@@ -5,8 +5,16 @@ import {openUrl} from "./helpers/openUrl.ts";
 let enable = false;
 let heartbeatInterval: number | undefined;
 
-chrome.runtime.onInstalled.addListener(() => {
-    console.log('onInstalled');
+chrome.runtime.onInstalled.addListener(({ reason }) => {
+    // if (reason === chrome.runtime.OnInstalledReason.INSTALL)
+        console.log('onInstalled', reason);
+
+        /*
+        "install" Specifies the event reason as an installation.
+        "update" Specifies the event reason as an extension update.
+        "chrome_update" Specifies the event reason as a Chrome update.
+        "shared_module_update" Specifies the event reason as an update to a shared module.
+         */
 });
 
 
