@@ -21,6 +21,7 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
 // on startup when the browser starts up
 chrome.runtime.onStartup.addListener(function () {
     console.log('onStartup');
+    enableDisablePolling();
 });
 
 // Fired when an action icon is clicked. This event will not fire if the action has a popup.
@@ -31,6 +32,11 @@ chrome.action.onClicked.addListener(function () {
         origins: ['https://qa-mv-1778/']
     });
 
+    enableDisablePolling();
+});
+
+
+function enableDisablePolling() {
     enable = !enable;
     chrome.action.setIcon({
         path: {
@@ -43,8 +49,7 @@ chrome.action.onClicked.addListener(function () {
 
     if (enable) startHeartbeatInterval().then(() => console.log('startHeartbeat()'));
     else stopHeartbeatInterval().then(() => console.log('stopHeartbeat()'));
-
-});
+}
 
 
 /**
