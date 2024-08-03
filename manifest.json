@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "Vladi's Push test Chrome extension",
-  "version": "1.0.8",
+  "name": "Vladi's Push extension",
+  "version": "1.1.0",
   "permissions": ["notifications", "storage", "background"],
   "optional_permissions": ["cookies"],
   "optional_host_permissions": ["*://*/*"],
   "action": {
+    "default_popup": "src/settings-popup/popup.html",
     "default_title": "Push test",
     "default_icon": {
       "19": "images/night-19.png",
@@ -20,7 +21,7 @@
   "update_url": "https://vladi.pages.dev/release/manifest.xml",
   "icons": {
     "16": "images/icon-16.png",
-    "48": "images/icon-48.png",
+    "64": "images/icon-64.png",
     "128": "images/icon-128.png"
   }
 }

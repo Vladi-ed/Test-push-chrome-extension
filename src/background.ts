@@ -45,7 +45,7 @@ function enableDisablePolling() {
         }
     });
     chrome.action.setTitle({ title: enable ? 'Disable' : 'Enable' });
-    chrome.action.setBadgeText({text: enable ? 'ON' : ''});
+    chrome.action.setBadgeText({text: enable ? '100' : ''});
 
     if (enable) startHeartbeatInterval().then(() => console.log('startHeartbeat()'));
     else stopHeartbeatInterval().then(() => console.log('stopHeartbeat()'));
