@@ -1,10 +1,13 @@
-export interface LoginRequest {
-    token: string;
-    msgId: string;
-    clientId: string;
-    ip: string;
+export interface LoginRequest extends GetEventListRequest {
+    ip?: string;
     userName: string;
     password: string;
+}
+
+export interface GetEventListRequest {
+    token?: string;
+    msgId: string;
+    clientId?: string;
 }
 
 interface User {
@@ -82,4 +85,13 @@ export interface LoginResponse {
     user: User;
     token: string;
     eventHeaders?: EventHeader[];
+}
+
+export interface EventListResponse {
+    responseId: string;
+    resultType: string;
+    message: string | null;
+    sequenceNumber: number;
+    numOfWaitingEvents: number;
+    events: EventHeader[];
 }

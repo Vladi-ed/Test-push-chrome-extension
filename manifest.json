@@ -6,7 +6,7 @@
   "optional_permissions": ["cookies"],
   "optional_host_permissions": ["*://*/*"],
   "action": {
-    "default_popup": "src/settings-popup/popup.html",
+    "default_popup_disabled": "src/settings-popup/popup.html",
     "default_title": "Push test",
     "default_icon": {
       "19": "images/night-19.png",

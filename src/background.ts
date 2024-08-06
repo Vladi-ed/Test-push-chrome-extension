@@ -1,4 +1,6 @@
 import {openUrl} from "./helpers/openUrl.ts";
+import {loginUser} from "./inf-api/login-user.ts";
+import {getEventList} from "./inf-api/get-event-list.ts";
 // import {getCatFact} from "./helpers/getCatFact.ts";
 // import {showNotification} from "./helpers/showNotification.ts";
 
@@ -25,11 +27,12 @@ chrome.runtime.onStartup.addListener(function () {
 });
 
 // Fired when an action icon is clicked. This event will not fire if the action has a popup.
-chrome.action.onClicked.addListener(function () {
+chrome.action.onClicked.addListener(async function () {
 
-    chrome.permissions.request({
+    await chrome.permissions.request({
         permissions: ['cookies'],
-        origins: ['https://qa-mv-1778/']
+        origins: ['http://qa-mv-00986/'],
+        // origins: ['https://qa-mv-1778/']
     });
 
     enableDisablePolling();
@@ -52,6 +55,18 @@ function enableDisablePolling() {
 }
 
 
+async function connect() {
+    const loginResp = await loginUser();
+    const token = loginResp.token;
+    console.log('Login Response:', token);
+
+    const eventListResp = await getEventList(token);
+
+    console.log('Event List:', eventListResp);
+}
+
+
+
 /**
  * Tracks when a service worker was last alive and extends the service worker
  * lifetime by writing the current time to extension storage every 20 seconds.
@@ -59,7 +74,7 @@ function enableDisablePolling() {
  * extension process crashes or your extension is manually stopped at
  * chrome://serviceworker-internals.
  */
-
+// @ts-ignore
 async function runHeartbeat() {
 
     const option = Math.floor((Math.random() * 4) + 1);
@@ -113,9 +128,11 @@ async function runHeartbeat() {
  */
 async function startHeartbeatInterval() {
     // Run the heartbeat once at service worker startup.
-    runHeartbeat().then(() => {
-        heartbeatInterval = setInterval(runHeartbeat, 20 * 1000);  // Then again every 20 seconds.
-    });
+    connect();
+
+    // runHeartbeat().then(() => {
+    //     heartbeatInterval = setInterval(runHeartbeat, 20 * 1000);  // Then again every 20 seconds.
+    // });
 }
 
 async function stopHeartbeatInterval() {
