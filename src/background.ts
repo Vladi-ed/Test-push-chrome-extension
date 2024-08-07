@@ -31,10 +31,11 @@ chrome.action.onClicked.addListener(async function () {
 
     await chrome.permissions.request({
         permissions: ['cookies'],
-        origins: ['http://qa-mv-00986/'],
-        // origins: ['https://qa-mv-1778/']
+        // origins: ['http://qa-mv-00986/'],
+        origins: ['https://qa-mv-1778/']
     });
 
+    await connect();
     enableDisablePolling();
 });
 
@@ -127,12 +128,9 @@ async function runHeartbeat() {
  * stopHeartbeat once that work is complete.
  */
 async function startHeartbeatInterval() {
-    // Run the heartbeat once at service worker startup.
-    connect();
-
-    // runHeartbeat().then(() => {
-    //     heartbeatInterval = setInterval(runHeartbeat, 20 * 1000);  // Then again every 20 seconds.
-    // });
+    runHeartbeat().then(() => {
+        heartbeatInterval = setInterval(runHeartbeat, 20 * 1000);  // Then again every 20 seconds.
+    });
 }
 
 async function stopHeartbeatInterval() {
