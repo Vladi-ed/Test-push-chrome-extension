@@ -1,11 +1,9 @@
-import {LoginRequest, LoginResponse} from "./data-types.ts";
+import {GeneralRequest, LoginResponse} from "./data-types.ts";
 
-export async function loginUser(host: string, userName: string, password: string): Promise<LoginResponse> {
+export async function logoutUser(host: string): Promise<LoginResponse> {
     const url = host + '/alerting-server-web/clientManager.json';
-    const requestBody: LoginRequest = {
-        msgId: 'LoginRequest',
-        userName,
-        password
+    const requestBody: GeneralRequest = {
+        msgId: 'LogoutRequest',
     };
 
     const response = await fetch(url, {

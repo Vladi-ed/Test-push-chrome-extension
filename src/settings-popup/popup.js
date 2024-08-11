@@ -1,55 +1,85 @@
+import {loginUser} from "../inf-api/login-user";
+import {getEventList} from "../inf-api/get-event-list";
+import {logoutUser} from "../inf-api/logout-user";
+
 const form = document.getElementById('control-row');
-const input = document.getElementById('input');
+const formData = form.querySelectorAll('input');
 const message = document.getElementById('message');
+const sendRequestBtn = document.getElementById('send-request');
 
 // The async IIFE is necessary because Chrome <89 does not support top level await.
 (async function initPopupWindow() {
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-  if (tab?.url) {
-    try {
-      let url = new URL(tab.url);
-      input.value = url.hostname;
-    } catch {
-      // ignore
+  const { user, passw, host } = await chrome.storage.local.get(['user', 'passw', 'host']);
+  console.log('user', host, user, passw);
+  if (host) formData.item(0).value = host;
+  else {
+    if (tab?.url && !host) {
+      try {
+        let url = new URL(tab.url);
+        formData.item(0).value = url.origin;
+      } catch { // ignore
+      }
     }
   }
-
-  input.focus();
+  if (user) formData.item(1).value = user;
+  if (passw) formData.item(2).value = passw;
 })();
 
 form.addEventListener('submit', handleFormSubmit);
+form.addEventListener('reset', logout);
+sendRequestBtn.addEventListener('click', logout);
 
 async function handleFormSubmit(event) {
   event.preventDefault();
 
-  clearMessage();
+  await chrome.permissions.request({
+    permissions: ['cookies'],
+    origins: ['http://192.168.108.176/']
+  });
 
-  let url = stringToUrl(input.value);
-  if (!url) {
-    setMessage('Invalid URL');
-    return;
-  }
+  // const url = new URL(formData.item(0).value).origin; // exception if the field is empty.
+  //
+  // setMessage(url);
 
-  let message = await deleteDomainCookies(url.hostname);
-  setMessage(message);
+
+
+  const resp = await connect();
+  setMessage(JSON.stringify(resp), null, 4);
+
+  // clearMessage();
+  //
+  // let url = stringToUrl(input.value);
+  // if (!url) {
+  //   setMessage('Invalid URL');
+  //   return;
+  // }
+  //
+  // let message = await deleteDomainCookies(url.hostname);
+  // setMessage(message);
 }
 
-function stringToUrl(input) {
-  // Start with treating the provided value as a URL
-  try {
-    return new URL(input);
-  } catch {
-    // ignore
-  }
-  // If that fails, try assuming the provided input is an HTTP host
-  try {
-    return new URL('http://' + input);
-  } catch {
-    // ignore
-  }
-  // If that fails ¯\_(ツ)_/¯
-  return null;
+async function connect() {
+  const user = formData.item(1).value || 'system';
+  const passw = formData.item(2).value || 'manager';
+  const host = formData.item(0).value ? new URL(formData.item(0).value).origin :'http://192.168.108.176/';
+  await chrome.storage.local.set({ user, passw, host });
+
+  const loginResp = await loginUser(host, user, passw);
+  const token = loginResp.token;
+  console.log('Login Response:', loginResp);
+
+  const eventListResp = await getEventList(host, token);
+
+  console.log('Event List:', eventListResp);
+  return eventListResp;
+}
+
+async function logout(event) {
+  event.preventDefault();
+  await logoutUser(formData.item(0).value);
+  form.disabled = false;
 }
 
 async function deleteDomainCookies(domain) {

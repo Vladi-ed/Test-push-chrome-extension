@@ -1,11 +1,11 @@
-import {EventListResponse, GetEventListRequest} from "./data-types.ts";
+import {EventListResponse, GeneralRequest} from "./data-types.ts";
 
-export async function getEventList(token: string): Promise<EventListResponse> {
-    const url = 'http://qa-mv-00986/alerting-server-web/clientManager.json';
-    const requestBody: GetEventListRequest = {
+export async function getEventList(host: string, token: string): Promise<EventListResponse> {
+    const url = host + '/alerting-server-web/clientManager.json';
+    const requestBody: GeneralRequest = {
         token,
         msgId: 'GetEventListRequest',
-        clientId: '1'
+        // clientId: '1' // uuid of a client
     };
 
     const response = await fetch(url, {

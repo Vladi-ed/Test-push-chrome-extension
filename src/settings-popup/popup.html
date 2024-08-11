@@ -1,58 +1,76 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <link rel="stylesheet" type="text/css" href="popup.css" />
+<head>
+    <link href="popup.css" rel="stylesheet" type="text/css"/>
     <script src="popup.js" type="module"></script>
     <title>Extension Settings</title>
-  </head>
-  <body>
-    <h1 class="mt-4 mb-4">Notifier</h1>
-    <form id="control-row" class="p-4 bg-white">
-      <div class="mt-4 max-w-md">
+</head>
+<body>
+<h1 class="mt-4 mb-4">Notifier</h1>
+<form class="p-4 bg-white" id="control-row">
+    <div class="mt-4 max-w-md">
         <div class="grid grid-cols-1 gap-6">
-          <label class="block">
-            <span class="text-gray-700">MobileView URL</span>
-            <input type="text" class="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0" placeholder="https://qa-mv-1778/asset-manager-web">
-          </label>
-          <label class="block">
-            <span class="text-gray-700">User</span>
-            <input type="email" class="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0" placeholder="john@example.com">
-          </label>
-          <label class="block">
-            <span class="text-gray-700">Password</span>
-            <input type="email" class="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0">
-          </label>
-<!--          <label class="block">-->
-<!--            <span class="text-gray-700">When is your event?</span>-->
-<!--            <input type="date" class="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0">-->
-<!--          </label>-->
-<!--          <label class="block">-->
-<!--            <span class="text-gray-700">What type of event is it?</span>-->
-<!--            <select class="block w-full mt-1 rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0">-->
-<!--              <option>Corporate event</option>-->
-<!--              <option>Wedding</option>-->
-<!--              <option>Birthday</option>-->
-<!--              <option>Other</option>-->
-<!--            </select>-->
-<!--          </label>-->
+            <label class="block">
+                <span class="text-gray-700">MobileView URL</span>
+                <input autofocus class="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0"
+                       placeholder="https://qa-mv-1778/asset-manager-web"
+                       type="url">
+            </label>
+            <label class="block">
+                <span class="text-gray-700">User</span>
+                <input autocomplete="username" class="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0"
+                       placeholder="john@example.com"
+                       type="text">
+            </label>
+            <label class="block">
+                <span class="text-gray-700">Password</span>
+                <input autocomplete="password" class="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0"
+                       type="password">
+            </label>
+            <!--          <label class="block">-->
+            <!--            <span class="text-gray-700">When is your event?</span>-->
+            <!--            <input type="date" class="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0">-->
+            <!--          </label>-->
+            <!--          <label class="block">-->
+            <!--            <span class="text-gray-700">What type of event is it?</span>-->
+            <!--            <select class="block w-full mt-1 rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0">-->
+            <!--              <option>Corporate event</option>-->
+            <!--              <option>Wedding</option>-->
+            <!--              <option>Birthday</option>-->
+            <!--              <option>Other</option>-->
+            <!--            </select>-->
+            <!--          </label>-->
 
-          <div class="block">
-            <div class="mt-2">
-              <div>
-                <label class="inline-flex items-center">
-                  <input type="checkbox" class="rounded bg-gray-200 border-transparent focus:border-transparent focus:bg-gray-200 text-gray-700 focus:ring-1 focus:ring-offset-2 focus:ring-gray-500">
-                  <span class="ml-2">Save</span>
-                </label>
-              </div>
+            <div class="block">
+                <!--            <div class="mt-2">-->
+                <!--              <div>-->
+                <!--                <label class="inline-flex items-center">-->
+                <!--                  <input type="checkbox" class="rounded bg-gray-200 border-transparent focus:border-transparent focus:bg-gray-200 text-gray-700 focus:ring-1 focus:ring-offset-2 focus:ring-gray-500">-->
+                <!--                  <span class="ml-2">Save</span>-->
+                <!--                </label>-->
+                <!--              </div>-->
+                <!--            </div>-->
+                <button class="inline-flex items-center rounded-md bg-blue-50 px-4 py-2 text-md font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
+                        type="submit">
+                    Login
+                </button>
+                <button class="inline-flex items-center rounded-md bg-blue-50 px-4 py-2 text-md font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
+                        type="reset" >
+                    Logout
+                </button>
+                <button class="inline-flex items-center rounded-md bg-blue-50 px-4 py-2 text-md font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10"
+                        type="button" id="send-request">
+                    Send request
+                </button>
+
+                <div class="mt-2 overflow-auto">
+                    <div class="text-wrap" id="message">Response</div>
+                </div>
+
             </div>
-            <span class="inline-flex items-center rounded-md bg-blue-50 px-4 py-2 text-md font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
-              Login
-            </span>
-          </div>
         </div>
-      </div>
+    </div>
 
-    </form>
-    <span id="message" hidden></span>
-  </body>
+</form>
+</body>
 </html>

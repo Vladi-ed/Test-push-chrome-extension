@@ -1,10 +1,10 @@
-export interface LoginRequest extends GetEventListRequest {
+export interface LoginRequest extends GeneralRequest {
     ip?: string;
     userName: string;
     password: string;
 }
 
-export interface GetEventListRequest {
+export interface GeneralRequest {
     token?: string;
     msgId: string;
     clientId?: string;
@@ -89,7 +89,7 @@ export interface LoginResponse {
 
 export interface EventListResponse {
     responseId: string;
-    resultType: string;
+    resultType: string | 'Error';
     message: string | null;
     sequenceNumber: number;
     numOfWaitingEvents: number;

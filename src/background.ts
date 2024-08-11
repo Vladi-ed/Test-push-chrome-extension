@@ -1,6 +1,4 @@
 import {openUrl} from "./helpers/openUrl.ts";
-import {loginUser} from "./inf-api/login-user.ts";
-import {getEventList} from "./inf-api/get-event-list.ts";
 // import {getCatFact} from "./helpers/getCatFact.ts";
 // import {showNotification} from "./helpers/showNotification.ts";
 
@@ -31,11 +29,10 @@ chrome.action.onClicked.addListener(async function () {
 
     await chrome.permissions.request({
         permissions: ['cookies'],
-        // origins: ['http://qa-mv-00986/'],
-        origins: ['https://qa-mv-1778/']
+        origins: ['https://qa-mv-1778/', 'http://qa-mv-00986/']
     });
 
-    await connect();
+    // await connect();
     enableDisablePolling();
 });
 
@@ -54,19 +51,6 @@ function enableDisablePolling() {
     if (enable) startHeartbeatInterval().then(() => console.log('startHeartbeat()'));
     else stopHeartbeatInterval().then(() => console.log('stopHeartbeat()'));
 }
-
-
-async function connect() {
-    const loginResp = await loginUser();
-    const token = loginResp.token;
-    console.log('Login Response:', token);
-
-    const eventListResp = await getEventList(token);
-
-    console.log('Event List:', eventListResp);
-}
-
-
 
 /**
  * Tracks when a service worker was last alive and extends the service worker
