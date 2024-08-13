@@ -6,16 +6,23 @@ const form = document.getElementById('control-row');
 const formData = form.querySelectorAll('input');
 const message = document.getElementById('message');
 const sendRequestBtn = document.getElementById('send-request');
+let mvHost;
+let mvToken;
+
+form.addEventListener('submit', handleLogin);
+form.addEventListener('reset', handleLogout);
+sendRequestBtn.addEventListener('click', ping);
 
 // The async IIFE is necessary because Chrome <89 does not support top level await.
 (async function initPopupWindow() {
-  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   const { user, passw, host } = await chrome.storage.local.get(['user', 'passw', 'host']);
   console.log('user', host, user, passw);
+  mvHost = host;
   if (host) formData.item(0).value = host;
   else {
-    if (tab?.url && !host) {
+    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab?.url && !tab.url.startsWith('chrome')) {
       try {
         let url = new URL(tab.url);
         formData.item(0).value = url.origin;
@@ -27,11 +34,7 @@ const sendRequestBtn = document.getElementById('send-request');
   if (passw) formData.item(2).value = passw;
 })();
 
-form.addEventListener('submit', handleFormSubmit);
-form.addEventListener('reset', logout);
-sendRequestBtn.addEventListener('click', logout);
-
-async function handleFormSubmit(event) {
+async function handleLogin(event) {
   event.preventDefault();
 
   await chrome.permissions.request({
@@ -39,47 +42,42 @@ async function handleFormSubmit(event) {
     origins: ['http://192.168.108.176/']
   });
 
-  // const url = new URL(formData.item(0).value).origin; // exception if the field is empty.
-  //
-  // setMessage(url);
-
-
-
-  const resp = await connect();
-  setMessage(JSON.stringify(resp), null, 4);
-
-  // clearMessage();
-  //
-  // let url = stringToUrl(input.value);
-  // if (!url) {
-  //   setMessage('Invalid URL');
-  //   return;
-  // }
-  //
-  // let message = await deleteDomainCookies(url.hostname);
-  // setMessage(message);
+  try {
+    await login();
+  }
+  catch (e) {
+    console.log('catch', e)
+    setMessage(e.message);
+  }
 }
 
-async function connect() {
+async function login() {
   const user = formData.item(1).value || 'system';
   const passw = formData.item(2).value || 'manager';
-  const host = formData.item(0).value ? new URL(formData.item(0).value).origin :'http://192.168.108.176/';
-  await chrome.storage.local.set({ user, passw, host });
+  mvHost = formData.item(0).value ? new URL(formData.item(0).value).origin : 'http://192.168.108.176';
+  await chrome.storage.local.set({ user, passw, host: mvHost });
 
-  const loginResp = await loginUser(host, user, passw);
-  const token = loginResp.token;
+  const loginResp = await loginUser(mvHost, user, passw);
+  mvToken = loginResp.token;
   console.log('Login Response:', loginResp);
-
-  const eventListResp = await getEventList(host, token);
-
-  console.log('Event List:', eventListResp);
-  return eventListResp;
+  formData.item(2).disabled = true;
+  setMessage(JSON.stringify(loginResp));
+  return loginResp;
 }
 
-async function logout(event) {
+async function handleLogout(event) {
   event.preventDefault();
-  await logoutUser(formData.item(0).value);
-  form.disabled = false;
+  const resp = await logoutUser(mvHost);
+  setMessage(JSON.stringify(resp));
+  formData.item(2).disabled = false;
+}
+
+async function ping() {
+  console.log('ping()', mvHost);
+  const eventListResp = await getEventList(mvHost, mvToken);
+  console.log('Event List:', eventListResp);
+  setMessage(JSON.stringify(eventListResp));
+  return eventListResp;
 }
 
 async function deleteDomainCookies(domain) {

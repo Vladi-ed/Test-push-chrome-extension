@@ -89,7 +89,7 @@ export interface LoginResponse {
 
 export interface EventListResponse {
     responseId: string;
-    resultType: string | 'Error';
+    resultType: string | 'Error' | 'Ok' | 'Unknown';
     message: string | null;
     sequenceNumber: number;
     numOfWaitingEvents: number;
