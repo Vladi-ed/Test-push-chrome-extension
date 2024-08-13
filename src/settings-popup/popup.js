@@ -5,13 +5,21 @@ import {logoutUser} from "../inf-api/logout-user";
 const form = document.getElementById('control-row');
 const formData = form.querySelectorAll('input');
 const message = document.getElementById('message');
+const loginBtn = document.getElementById('login-btn');
+const logoutBtn = document.getElementById('logout-btn');
 const sendRequestBtn = document.getElementById('send-request');
 let mvHost;
 let mvToken;
 
 form.addEventListener('submit', handleLogin);
-form.addEventListener('reset', handleLogout);
+loginBtn.addEventListener('click', handleLogin);
+logoutBtn.addEventListener('click', handleLogout);
 sendRequestBtn.addEventListener('click', ping);
+
+window.addEventListener('offline', () => {
+  console.log("The network connection has been lost.");
+  document.getElementById('offline-badge')?.classList.remove('hidden');
+});
 
 // The async IIFE is necessary because Chrome <89 does not support top level await.
 (async function initPopupWindow() {
@@ -35,48 +43,64 @@ sendRequestBtn.addEventListener('click', ping);
 })();
 
 async function handleLogin(event) {
-  event.preventDefault();
-
-  await chrome.permissions.request({
-    permissions: ['cookies'],
-    origins: ['http://192.168.108.176/']
-  });
+  loginBtn.disabled = true;
 
   try {
+    mvHost = formData.item(0).value ? new URL(formData.item(0).value).origin : 'http://192.168.108.176';
+
+    await chrome.permissions.request({
+      permissions: ['cookies'],
+      origins: [mvHost + '/']
+    });
+
     await login();
+    logoutBtn.disabled = false;
+    const response = await chrome.runtime.sendMessage({greeting: "hello", mvHost, mvToken});
+    console.log('sw response:', response);
   }
   catch (e) {
-    console.log('catch', e)
-    setMessage(e.message);
+    setErrorMessage('Error: ' + e.message);
+    loginBtn.disabled = false;
   }
 }
 
 async function login() {
   const user = formData.item(1).value || 'system';
   const passw = formData.item(2).value || 'manager';
-  mvHost = formData.item(0).value ? new URL(formData.item(0).value).origin : 'http://192.168.108.176';
   await chrome.storage.local.set({ user, passw, host: mvHost });
 
   const loginResp = await loginUser(mvHost, user, passw);
+  if (loginResp.resultType === 'Error') {
+    throw new Error(loginResp.message);
+  }
   mvToken = loginResp.token;
   console.log('Login Response:', loginResp);
   formData.item(2).disabled = true;
-  setMessage(JSON.stringify(loginResp));
+  setErrorMessage('Logged in as ' + loginResp.user.firstName + ' ' + loginResp.user.lastName);
   return loginResp;
 }
 
 async function handleLogout(event) {
   event.preventDefault();
-  const resp = await logoutUser(mvHost);
-  setMessage(JSON.stringify(resp));
-  formData.item(2).disabled = false;
+  logoutBtn.disabled = true;
+  try {
+    const resp = await logoutUser(mvHost);
+    setErrorMessage(JSON.stringify(resp));
+    formData.item(2).disabled = false;
+    loginBtn.disabled = false;
+  }
+  catch (e) {
+    logoutBtn.disabled = false;
+    setErrorMessage('Error: ' + e.message);
+  }
+
 }
 
 async function ping() {
   console.log('ping()', mvHost);
   const eventListResp = await getEventList(mvHost, mvToken);
   console.log('Event List:', eventListResp);
-  setMessage(JSON.stringify(eventListResp));
+  setErrorMessage(JSON.stringify(eventListResp));
   return eventListResp;
 }
 
@@ -124,7 +148,7 @@ function deleteCookie(cookie) {
   });
 }
 
-function setMessage(str) {
+function setErrorMessage(str) {
   message.textContent = str;
   message.hidden = false;
 }

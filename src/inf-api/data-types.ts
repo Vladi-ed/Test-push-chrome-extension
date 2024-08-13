@@ -78,19 +78,19 @@ interface EventHeader {
     categoryName: string;
 }
 
-export interface LoginResponse {
+interface GeneralResponse {
     responseId: string;
-    resultType: string;
+    resultType: 'Error' | 'Ok' | 'Unknown';
     message: string | null;
+}
+
+export interface LoginResponse extends GeneralResponse {
     user: User;
     token: string;
     eventHeaders?: EventHeader[];
 }
 
-export interface EventListResponse {
-    responseId: string;
-    resultType: string | 'Error' | 'Ok' | 'Unknown';
-    message: string | null;
+export interface EventListResponse extends GeneralResponse {
     sequenceNumber: number;
     numOfWaitingEvents: number;
     events: EventHeader[];

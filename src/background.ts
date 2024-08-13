@@ -1,4 +1,5 @@
 import {openUrl} from "./helpers/openUrl.ts";
+import {getEventList} from "./inf-api/get-event-list.ts";
 // import {getCatFact} from "./helpers/getCatFact.ts";
 // import {showNotification} from "./helpers/showNotification.ts";
 
@@ -36,13 +37,44 @@ chrome.action.onClicked.addListener(async function () {
     enableDisablePolling();
 });
 
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        console.log(sender.tab ?
+            "from a content script:" + sender.tab.url :
+            "from the extension");
+
+        if (request.greeting === "hello") {
+            ping(request.mvHost, request.mvToken).then(sendResponse);
+            return true;
+        }
+
+        return false;
+    }
+);
+
+async function ping(mvHost: string, mvToken: string) {
+    console.log('ping()', mvHost);
+    const eventListResp = await getEventList(mvHost, mvToken);
+    console.log('Event List:', eventListResp);
+    enable = true;
+    await chrome.action.setBadgeText({text: String(eventListResp.events.length)});
+    // await chrome.action.setBadgeText({text: String(eventListResp.sequenceNumber)});
+    await chrome.action.setIcon({
+        path: {
+            19: 'images/' + (enable ? 'enabled' : 'disabled') + '-19.png',
+            38: 'images/' + (enable ? 'enabled' : 'disabled') + '-38.png'
+        }
+    });
+    return eventListResp.events;
+}
+
 
 function enableDisablePolling() {
     enable = !enable;
     chrome.action.setIcon({
         path: {
-            19: 'images/' + (enable ? 'day' : 'night') + '-19.png',
-            38: 'images/' + (enable ? 'day' : 'night') + '-38.png'
+            19: 'images/' + (enable ? 'enabled' : 'disabled') + '-19.png',
+            38: 'images/' + (enable ? 'enabled' : 'disabled') + '-38.png'
         }
     });
     chrome.action.setTitle({ title: enable ? 'Disable' : 'Enable' });

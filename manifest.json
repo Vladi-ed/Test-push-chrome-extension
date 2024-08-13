@@ -9,8 +9,8 @@
     "default_popup": "src/settings-popup/popup.html",
     "default_title": "Push test",
     "default_icon": {
-      "19": "images/night-19.png",
-      "38": "images/night-38.png"
+      "19": "images/disabled-19.png",
+      "38": "images/disabled-38.png"
     }
   },
   "background": {
