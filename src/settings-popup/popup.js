@@ -39,7 +39,7 @@ window.addEventListener('offline', () => {
     }
   }
   if (user) formData.item(1).value = user;
-  if (passw) formData.item(2).value = passw;
+  if (passw) formData.item(2).value = atob(passw);
 })();
 
 async function handleLogin(event) {
@@ -66,8 +66,8 @@ async function handleLogin(event) {
 
 async function login() {
   const user = formData.item(1).value || 'system';
-  const passw = formData.item(2).value || 'manager';
-  await chrome.storage.local.set({ user, passw, host: mvHost });
+  const passw = formData.item(2).value;
+  await chrome.storage.local.set({ user, host: mvHost });
 
   const loginResp = await loginUser(mvHost, user, passw);
   if (loginResp.resultType === 'Error') {
@@ -77,6 +77,7 @@ async function login() {
   console.log('Login Response:', loginResp);
   formData.item(2).disabled = true;
   setErrorMessage('Logged in as ' + loginResp.user.firstName + ' ' + loginResp.user.lastName);
+  await chrome.storage.local.set({ passw: btoa(passw) });
   return loginResp;
 }
 
