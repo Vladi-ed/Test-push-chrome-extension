@@ -15,7 +15,7 @@ interface User {
     username: string;
     firstName: string;
     lastName: string;
-    jobTitle: string;
+    jobTitle: string | null;
     dateFormat: string;
     language: string;
     timeZone: string;
@@ -45,7 +45,7 @@ enum EventStatus {
     CLOSED = "CLOSED"
 }
 
-interface EventHeader {
+export interface EventHeader {
     id: number;
     name: string;
     type: string;
@@ -61,21 +61,21 @@ interface EventHeader {
     playSound: boolean;
     specId: number;
     lastReminderDateInMs: number | null;
-    assetApplicationId: string;
+    assetApplicationId: string | null;
     assetName: string;
     assetId: number;
     isDisplayAssetImage: boolean;
-    title: string;
+    title: string | null;
     formattedLocation: string;
     shortLocation: string;
     areaName: string;
     areaId: number;
-    zoneName: string;
-    zoneId: string;
+    zoneName: string | null;
+    zoneId: string | null;
     mapId: number;
     locationAvailable: boolean;
     categoryId: number;
-    categoryName: string;
+    categoryName: string | null;
 }
 
 interface GeneralResponse {
@@ -87,7 +87,6 @@ interface GeneralResponse {
 export interface LoginResponse extends GeneralResponse {
     user: User;
     token: string;
-    eventHeaders?: EventHeader[];
 }
 
 export interface EventListResponse extends GeneralResponse {

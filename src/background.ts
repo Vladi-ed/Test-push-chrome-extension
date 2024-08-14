@@ -37,13 +37,12 @@ chrome.action.onClicked.addListener(async function () {
     enableDisablePolling();
 });
 
-chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log(sender.tab ?
             "from a content script:" + sender.tab.url :
             "from the extension");
 
-        if (request.greeting === "hello") {
+        if (request.action === 'start') {
             ping(request.mvHost, request.mvToken).then(sendResponse);
             return true;
         }
@@ -91,7 +90,6 @@ function enableDisablePolling() {
  * extension process crashes or your extension is manually stopped at
  * chrome://serviceworker-internals.
  */
-// @ts-ignore
 async function runHeartbeat() {
 
     const option = Math.floor((Math.random() * 4) + 1);

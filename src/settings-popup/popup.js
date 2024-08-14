@@ -54,8 +54,7 @@ async function handleLogin(event) {
     });
 
     await login();
-    logoutBtn.disabled = false;
-    const response = await chrome.runtime.sendMessage({greeting: "hello", mvHost, mvToken});
+    const response = await chrome.runtime.sendMessage({action: "start", mvHost, mvToken});
     console.log('sw response:', response);
   }
   catch (e) {
@@ -70,12 +69,11 @@ async function login() {
   await chrome.storage.local.set({ user, host: mvHost });
 
   const loginResp = await loginUser(mvHost, user, passw);
-  if (loginResp.resultType === 'Error') {
-    throw new Error(loginResp.message);
-  }
+
   mvToken = loginResp.token;
   console.log('Login Response:', loginResp);
   formData.item(2).disabled = true;
+  logoutBtn.disabled = false;
   setErrorMessage('Logged in as ' + loginResp.user.firstName + ' ' + loginResp.user.lastName);
   await chrome.storage.local.set({ passw: btoa(passw) });
   return loginResp;
@@ -102,6 +100,8 @@ async function ping() {
   const eventListResp = await getEventList(mvHost, mvToken);
   console.log('Event List:', eventListResp);
   setErrorMessage(JSON.stringify(eventListResp));
+
+  // await chrome.storage.local.set({ token: mvToken });
   return eventListResp;
 }
 

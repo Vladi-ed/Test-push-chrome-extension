@@ -17,6 +17,12 @@ export async function loginUser(host: string, userName: string, password: string
         throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    const loginResp = await response.json();
+
+    if (loginResp.resultType === 'Error') {
+        throw new Error(loginResp.message);
+    }
+
+    return loginResp;
 }
 
