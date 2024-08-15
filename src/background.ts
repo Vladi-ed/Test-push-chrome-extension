@@ -1,10 +1,11 @@
 import {openUrl} from "./helpers/openUrl.ts";
 import {getEventList} from "./inf-api/get-event-list.ts";
+import {EventNotificationManager} from "./helpers/event-notification-manager.ts";
 // import {getCatFact} from "./helpers/getCatFact.ts";
-// import {showNotification} from "./helpers/showNotification.ts";
 
 let enable = false;
 let heartbeatInterval: number | undefined;
+let notifManager: EventNotificationManager | undefined;
 
 chrome.runtime.onInstalled.addListener(({ reason }) => {
     // if (reason === chrome.runtime.OnInstalledReason.INSTALL)
@@ -38,14 +39,24 @@ chrome.action.onClicked.addListener(async function () {
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        console.log(sender.tab ?
-            "from a content script:" + sender.tab.url :
-            "from the extension");
+    console.log(sender.tab ?
+        "from a content script:" + sender.tab.url :
+        "from the extension");
 
-        if (request.action === 'start') {
-            ping(request.mvHost, request.mvToken).then(sendResponse);
-            return true;
-        }
+    if (request.action === 'start') {
+        // ping(request.mvHost, request.mvToken).then(sendResponse);
+
+        if (!notifManager) notifManager = new EventNotificationManager({mvHost: request.mvHost, mvToken: request.mvToken});
+        notifManager.start();
+        sendResponse();
+
+        return true;
+    }
+
+    if (request.action === 'stop') {
+        notifManager!.stop();
+        return true;
+    }
 
         return false;
     }
@@ -153,7 +164,7 @@ async function stopHeartbeatInterval() {
 
 
 chrome.notifications.onClicked.addListener(() => {
-    openUrl('https://cataas.com/cat?type=square');
+    openUrl('https://cataas.com/cat');
 });
 
 chrome.notifications.onButtonClicked.addListener((_, buttonIndex) => {

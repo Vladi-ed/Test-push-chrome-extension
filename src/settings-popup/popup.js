@@ -54,7 +54,7 @@ async function handleLogin(event) {
     });
 
     await login();
-    const response = await chrome.runtime.sendMessage({action: "start", mvHost, mvToken});
+    const response = await chrome.runtime.sendMessage({action: 'start', mvHost, mvToken});
     console.log('sw response:', response);
   }
   catch (e) {
@@ -87,6 +87,8 @@ async function handleLogout(event) {
     setErrorMessage(JSON.stringify(resp));
     formData.item(2).disabled = false;
     loginBtn.disabled = false;
+    const response = await chrome.runtime.sendMessage({action: 'stop', mvHost});
+    console.log('sw response:', response);
   }
   catch (e) {
     logoutBtn.disabled = false;
