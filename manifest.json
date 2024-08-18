@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "INF Push extension",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "permissions": ["notifications", "storage", "background", "activeTab"],
   "optional_permissions": ["cookies"],
   "optional_host_permissions": ["*://*/*"],

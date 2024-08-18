@@ -24,8 +24,8 @@ window.addEventListener('offline', () => {
 // The async IIFE is necessary because Chrome <89 does not support top level await.
 (async function initPopupWindow() {
 
-  const { user, passw, host } = await chrome.storage.local.get(['user', 'passw', 'host']);
-  console.log('user', host, user, passw);
+  const { user, passw, host, active } = await chrome.storage.local.get(['user', 'passw', 'host', 'active']);
+  console.log('Saved Host and User', host, user);
   mvHost = host;
   if (host) formData.item(0).value = host;
   else {
@@ -40,6 +40,13 @@ window.addEventListener('offline', () => {
   }
   if (user) formData.item(1).value = user;
   if (passw) formData.item(2).value = atob(passw);
+
+  if (active) {
+    console.log('active', active);
+    loginBtn.disabled = true;
+    logoutBtn.disabled = false;
+    formData.item(2).disabled = true; // password field
+  }
 })();
 
 async function handleLogin(event) {
@@ -48,7 +55,7 @@ async function handleLogin(event) {
   try {
     mvHost = formData.item(0).value ? new URL(formData.item(0).value).origin : 'http://192.168.108.176';
 
-    await chrome.permissions.request({
+    await chrome.permissions.request({ // chrome.permissions.contains({})
       permissions: ['cookies'],
       origins: [mvHost + '/']
     });
@@ -65,7 +72,7 @@ async function handleLogin(event) {
 
 async function login() {
   const user = formData.item(1).value || 'system';
-  const passw = formData.item(2).value;
+  const passw = formData.item(2).value || '';
   await chrome.storage.local.set({ user, host: mvHost });
 
   const loginResp = await loginUser(mvHost, user, passw);
@@ -75,7 +82,13 @@ async function login() {
   formData.item(2).disabled = true;
   logoutBtn.disabled = false;
   setErrorMessage('Logged in as ' + loginResp.user.firstName + ' ' + loginResp.user.lastName);
-  await chrome.storage.local.set({ passw: btoa(passw) });
+
+  await chrome.storage.local.set({ passw: btoa(passw), active: true });
+
+  // const hostOptions = {};
+  // hostOptions[mvHost] = {user, passw: btoa(passw)};
+  // await chrome.storage.local.set(hostOptions);
+
   return loginResp;
 }
 
@@ -87,6 +100,7 @@ async function handleLogout(event) {
     setErrorMessage(JSON.stringify(resp));
     formData.item(2).disabled = false;
     loginBtn.disabled = false;
+    await chrome.storage.local.set({ active: false });
     const response = await chrome.runtime.sendMessage({action: 'stop', mvHost});
     console.log('sw response:', response);
   }

@@ -37,39 +37,48 @@ export class EventNotificationManager {
         }
     }
 
-    private async checkForNewEvents(retryCount: number = 0): Promise<void> {
+    private async checkForNewEvents(): Promise<void> {
         try {
             const apiResponse = await getEventList(this.mvHost, this.mvToken);
 
             if (apiResponse.resultType === 'Error' && apiResponse.message === 'no such user') {
-                await this.relogin();
-                return this.checkForNewEvents();
+                await this.reLogin();
             }
 
             if (apiResponse.events) {
                 this.updateEvents(apiResponse.events);
             }
+
+            if (chrome.audio) {
+                const devices = await chrome.audio.getDevices({isActive: true, streamTypes: ['OUTPUT']});
+                console.log('devices[0].level', devices[0].deviceName,  devices[0].level);
+
+                if (await chrome.audio.getMute('OUTPUT')) await showNotification('Error', 'Sound is on Mute');
+            }
+
         } catch (error) {
             console.error('Error checking for new events:', error);
-            if (retryCount < this.maxRetries) {
-                console.log(`Retrying... Attempt ${retryCount + 1} of ${this.maxRetries}`);
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retrying
-                return this.checkForNewEvents(retryCount + 1);
-            } else {
-                console.error('Max retries reached. Unable to check for new events.');
-                await showNotification('Error', 'Max retries reached. Unable to check for new events.'); // Display notification
-            }
+            await showNotification('Error', 'Unable to check for new events. ' + (error as Error).message);
+
+            // if (retryCount < this.maxRetries) {
+            //     console.log(`Retrying... Attempt ${retryCount + 1} of ${this.maxRetries}`);
+            //     await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retrying
+            //     return this.checkForNewEvents(retryCount + 1);
+            // } else {
+            //     console.error('Max retries reached. Unable to check for new events.');
+            //     await showNotification('Error', 'Max retries reached. Unable to check for new events.'); // Display notification
+            // }
         }
     }
 
-    private async relogin(): Promise<void> {
-        const { user, passw } = await chrome.storage.local.get(['user', 'passw', 'host']);
+    private async reLogin(): Promise<void> {
+        const { user, passw } = await chrome.storage.local.get(['user', 'passw']);
 
         if (!user || !passw) {
-            throw new Error('Login credentials not found in localStorage');
+            throw new Error('Login credentials not found');
         }
 
-        const loginResponse = await loginUser(this.mvHost, user, passw);
+        const loginResponse = await loginUser(this.mvHost, user, atob(passw));
         this.mvToken = loginResponse.token;
     }
 
@@ -121,6 +130,21 @@ export class EventNotificationManager {
         // Implement your popup logic here
         console.log('Showing notification for events:', events);
         showNotification('New alerts', events.length + ') ' + events[0].name, this.mvHost + '/asset-manager-web/images/event_medium.gif'); // Display notification
+    }
+
+    private injectScript() {
+        function injectedFunction() {
+            document.body.style.backgroundColor = "orange";
+        }
+
+        chrome.action.onClicked.addListener((tab) => {
+            chrome.scripting.executeScript({
+                target : {tabId : tab.id!},
+                func : injectedFunction,
+            });
+        });
+
+        // When injecting as a function, you can also pass arguments to the function.
     }
 }
 

@@ -10,6 +10,7 @@ let notifManager: EventNotificationManager | undefined;
 chrome.runtime.onInstalled.addListener(({ reason }) => {
     // if (reason === chrome.runtime.OnInstalledReason.INSTALL)
         console.log('onInstalled', reason);
+        chrome.storage.local.set({ active: false });
 
         /*
         "install" Specifies the event reason as an installation.
@@ -38,7 +39,7 @@ chrome.action.onClicked.addListener(async function () {
     enableDisablePolling();
 });
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, sender) => {
     console.log(sender.tab ?
         "from a content script:" + sender.tab.url :
         "from the extension");
@@ -46,21 +47,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'start') {
         // ping(request.mvHost, request.mvToken).then(sendResponse);
 
+        // TODO: do we need to update token?
         if (!notifManager) notifManager = new EventNotificationManager({mvHost: request.mvHost, mvToken: request.mvToken});
         notifManager.start();
-        sendResponse();
-
-        return true;
     }
 
     if (request.action === 'stop') {
         notifManager!.stop();
-        return true;
+        // TODO: do we need to kill notifManager?
+        notifManager = undefined;
     }
 
-        return false;
-    }
-);
+    return true;
+});
 
 async function ping(mvHost: string, mvToken: string) {
     console.log('ping()', mvHost);
