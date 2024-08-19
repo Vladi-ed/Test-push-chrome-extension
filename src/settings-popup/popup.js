@@ -51,62 +51,54 @@ window.addEventListener('offline', () => {
 
 async function handleLogin(event) {
   loginBtn.disabled = true;
+  mvHost = formData.item(0).value ? new URL(formData.item(0).value).origin : 'http://192.168.108.176';
+  const user = formData.item(1).value || 'system';
+  const passw = formData.item(2).value || '';
 
   try {
-    mvHost = formData.item(0).value ? new URL(formData.item(0).value).origin : 'http://192.168.108.176';
-
+    await chrome.storage.local.set({ user, passw: btoa(passw), host: mvHost });
     await chrome.permissions.request({ // chrome.permissions.contains({})
       permissions: ['cookies'],
       origins: [mvHost + '/']
     });
 
-    await login();
-    const response = await chrome.runtime.sendMessage({action: 'start', mvHost, mvToken});
-    console.log('sw response:', response);
+    const loginResp = await loginUser(mvHost, user, passw);
+    mvToken = loginResp.token;
+    console.log('Login Response:', loginResp);
+    formData.item(2).disabled = true; // disable password field
+    logoutBtn.disabled = false;
+    setFormMessage('Logged in as ' + loginResp.user.firstName + ' ' + loginResp.user.lastName);
+
+    await chrome.runtime.sendMessage({action: 'start', mvHost, mvToken});
+    await chrome.storage.local.set({ active: true });
   }
   catch (e) {
-    setErrorMessage('Error: ' + e.message);
+    setFormMessage('Error: ' + e.message);
     loginBtn.disabled = false;
   }
 }
 
 async function login() {
-  const user = formData.item(1).value || 'system';
-  const passw = formData.item(2).value || '';
-  await chrome.storage.local.set({ user, host: mvHost });
-
-  const loginResp = await loginUser(mvHost, user, passw);
-
-  mvToken = loginResp.token;
-  console.log('Login Response:', loginResp);
-  formData.item(2).disabled = true;
-  logoutBtn.disabled = false;
-  setErrorMessage('Logged in as ' + loginResp.user.firstName + ' ' + loginResp.user.lastName);
-
-  await chrome.storage.local.set({ passw: btoa(passw), active: true });
-
   // const hostOptions = {};
   // hostOptions[mvHost] = {user, passw: btoa(passw)};
   // await chrome.storage.local.set(hostOptions);
-
-  return loginResp;
 }
 
 async function handleLogout(event) {
   event.preventDefault();
   logoutBtn.disabled = true;
   try {
-    const resp = await logoutUser(mvHost);
-    setErrorMessage(JSON.stringify(resp));
-    formData.item(2).disabled = false;
-    loginBtn.disabled = false;
     await chrome.storage.local.set({ active: false });
-    const response = await chrome.runtime.sendMessage({action: 'stop', mvHost});
-    console.log('sw response:', response);
+    await chrome.runtime.sendMessage({action: 'stop', mvHost});
+
+    const resp = await logoutUser(mvHost);
+    setFormMessage(JSON.stringify(resp));
+    formData.item(2).disabled = false; // enable password field
+    loginBtn.disabled = false; // enable login button
   }
   catch (e) {
     logoutBtn.disabled = false;
-    setErrorMessage('Error: ' + e.message);
+    setFormMessage('Error: ' + e.message);
   }
 
 }
@@ -115,7 +107,7 @@ async function ping() {
   console.log('ping()', mvHost);
   const eventListResp = await getEventList(mvHost, mvToken);
   console.log('Event List:', eventListResp);
-  setErrorMessage(JSON.stringify(eventListResp));
+  setFormMessage(JSON.stringify(eventListResp));
 
   // await chrome.storage.local.set({ token: mvToken });
   return eventListResp;
@@ -165,7 +157,7 @@ function deleteCookie(cookie) {
   });
 }
 
-function setErrorMessage(str) {
+function setFormMessage(str) {
   message.textContent = str;
   message.hidden = false;
 }

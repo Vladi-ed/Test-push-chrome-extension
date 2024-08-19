@@ -1,0 +1,41 @@
+{
+  "responseId": "EventListResponse",
+  "resultType": "Unknown",
+  "message": null,
+  "sequenceNumber": 22,
+  "numOfWaitingEvents": 0,
+  "events": [
+    {
+      "id": 8644430,
+      "name": "My Status Change to Broken",
+      "type": "Asset Properties",
+      "priority": "MEDIUM",
+      "status": "NEW",
+      "dateInMs": 1724056323187,
+      "modifiedDateInMs": 1724056323777,
+      "dismissedUser": "",
+      "correctiveAction": null,
+      "correctiveActionMandatoryForDismiss": false,
+      "isUpdate": false,
+      "specSoundFileName": "alertSiren.mp3",
+      "playSound": true,
+      "specId": 2,
+      "lastReminderDateInMs": null,
+      "assetApplicationId": "t15ha1",
+      "assetName": "t15ha1",
+      "assetId": 1,
+      "isDisplayAssetImage": false,
+      "title": null,
+      "formattedLocation": "All Sites",
+      "shortLocation": "All Sites",
+      "areaName": "All Sites",
+      "areaId": 1,
+      "zoneName": null,
+      "zoneId": null,
+      "mapId": 0,
+      "locationAvailable": false,
+      "categoryId": -1,
+      "categoryName": null
+    }
+  ]
+}

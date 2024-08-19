@@ -9,7 +9,8 @@ export class EventNotificationManager {
     private checkInterval = 2000; // Default to 2 seconds
     private intervalId: any = null;
     private lastEvents: Map<EventHeader['id'], EventHeader> = new Map();
-    private maxRetries: number = 3;
+    private maxRetries: number = 5;
+    private currentRetries = 0;
 
     constructor(config: {
         mvHost: string;
@@ -49,6 +50,7 @@ export class EventNotificationManager {
                 this.updateEvents(apiResponse.events);
             }
 
+            // TODO: check on Chromebook
             if (chrome.audio) {
                 const devices = await chrome.audio.getDevices({isActive: true, streamTypes: ['OUTPUT']});
                 console.log('devices[0].level', devices[0].deviceName,  devices[0].level);
@@ -58,16 +60,17 @@ export class EventNotificationManager {
 
         } catch (error) {
             console.error('Error checking for new events:', error);
-            await showNotification('Error', 'Unable to check for new events. ' + (error as Error).message);
+            this.currentRetries++;
 
-            // if (retryCount < this.maxRetries) {
-            //     console.log(`Retrying... Attempt ${retryCount + 1} of ${this.maxRetries}`);
-            //     await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retrying
-            //     return this.checkForNewEvents(retryCount + 1);
-            // } else {
-            //     console.error('Max retries reached. Unable to check for new events.');
-            //     await showNotification('Error', 'Max retries reached. Unable to check for new events.'); // Display notification
-            // }
+            if (this.currentRetries < this.maxRetries) {
+                console.log(`Retrying... Attempt ${this.currentRetries} of ${this.maxRetries}`);
+                await showNotification('Error', 'Unable to check for new events. ' + (error as Error).message);
+                // await new Promise(resolve => setTimeout(resolve, 5000)); // Wait before retrying
+            } else {
+                console.error('Max retries reached. Unable to check for new events.');
+                await showNotification('Error', 'Max retries reached. Unable to check for new events.'); // Display notification
+                this.stop();
+            }
         }
     }
 
@@ -85,13 +88,10 @@ export class EventNotificationManager {
     private updateEvents(newEvents: EventHeader[]): void {
         if (newEvents.length === 0) return;
 
-        // Initialize a set of new event IDs for easy comparison
-        const newEventIds = new Set(newEvents.map(event => event.id));
-
         // Find brand new events (events in newEvents but not in lastEvents) and have status NEW
         const brandNewEvents = newEvents.filter(event =>
             !this.lastEvents.has(event.id) &&
-            event.status === "NEW"
+            event.status === 'NEW'
         );
 
         // Find updated events where the lastReminderDateInMs has changed
@@ -110,6 +110,9 @@ export class EventNotificationManager {
             // Fill and Update lastEvents map with new or updated events
             eventsToAdd.forEach(event => this.lastEvents.set(event.id, event));
         }
+
+        // Initialize a set of new event IDs for easy comparison
+        const newEventIds = new Set(newEvents.map(event => event.id));
 
         // Handle removed events: Remove if the event is in lastEvents and status is not NEW
         const removedEventIds = Array.from(this.lastEvents.keys()).filter(id => {
