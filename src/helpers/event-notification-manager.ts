@@ -9,7 +9,7 @@ export class EventNotificationManager {
     private checkInterval = 2000; // Default to 2 seconds
     private intervalId: any = null;
     private lastEvents: Map<EventHeader['id'], EventHeader> = new Map();
-    private maxRetries: number = 5;
+    private maxRetries: number = 2;
     private currentRetries = 0;
 
     constructor(config: {
@@ -132,7 +132,7 @@ export class EventNotificationManager {
     private showNotification(events: EventHeader[]): void {
         // Implement your popup logic here
         console.log('Showing notification for events:', events);
-        showNotification('New alerts', events.length + ') ' + events[0].name, this.mvHost + '/asset-manager-web/images/event_medium.gif'); // Display notification
+        showNotification('New alerts', events.length + ') ' + events[0].name); // Display notification
     }
 
     private injectScript() {

@@ -28,24 +28,14 @@ window.addEventListener('offline', () => {
   console.log('Saved Host and User', host, user);
   mvHost = host;
   if (host) formData.item(0).value = host;
-  else {
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tab?.url && !tab.url.startsWith('chrome')) {
-      try {
-        let url = new URL(tab.url);
-        formData.item(0).value = url.origin;
-      } catch { // ignore
-      }
-    }
-  }
   if (user) formData.item(1).value = user;
   if (passw) formData.item(2).value = atob(passw);
 
   if (active) {
-    console.log('active', active);
+    console.debug('active login', active);
     loginBtn.disabled = true;
     logoutBtn.disabled = false;
-    formData.item(2).disabled = true; // password field
+    formData.item(2).disabled = true; // disable password field
   }
 })();
 
@@ -100,7 +90,6 @@ async function handleLogout(event) {
     logoutBtn.disabled = false;
     setFormMessage('Error: ' + e.message);
   }
-
 }
 
 async function ping() {
@@ -109,7 +98,10 @@ async function ping() {
   console.log('Event List:', eventListResp);
   setFormMessage(JSON.stringify(eventListResp));
 
-  // await chrome.storage.local.set({ token: mvToken });
+  // const sessionCookie = await chrome
+  //     .cookies?.getAll({ name: 'JSESSIONID' });
+  // console.log('Extension JSESSIONID cookie', sessionCookie);
+
   return eventListResp;
 }
 

@@ -14,7 +14,19 @@ function showNotificationImage(body: string) {
     return chrome.notifications.create(options);
 }
 
-export function showNotification(title: string, message: string, iconUrl = 'https://cataas.com/cat?type=square') {
+export function showNotification(title: string, message: string) {
+    const options: chrome.notifications.NotificationOptions = {
+        title,
+        message,
+        type: 'basic',
+        buttons: [{title: 'Check'}, {title: 'Dismiss'}],
+        priority: 0,
+        requireInteraction: false,
+    };
+
+    return chrome.notifications.create(options);
+}
+export function showNotificationList(title: string, message: string, iconUrl = 'https://cataas.com/cat?type=square') {
     const options: chrome.notifications.NotificationOptions = {
         title,
         message,

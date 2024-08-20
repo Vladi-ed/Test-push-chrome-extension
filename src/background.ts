@@ -39,10 +39,10 @@ chrome.action.onClicked.addListener(async function () {
     enableDisablePolling();
 });
 
-chrome.runtime.onMessage.addListener((request, sender) => {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log(sender.tab ?
         "from a content script:" + sender.tab.url :
-        "from the extension");
+        "Notification Manager received " + request.action + " message from the extension");
 
     if (request.action === 'start') {
         // ping(request.mvHost, request.mvToken).then(sendResponse);
@@ -51,14 +51,15 @@ chrome.runtime.onMessage.addListener((request, sender) => {
         if (!notifManager) notifManager = new EventNotificationManager({mvHost: request.mvHost, mvToken: request.mvToken});
         notifManager.start();
     }
-
     if (request.action === 'stop') {
         notifManager!.stop();
         // TODO: do we need to kill notifManager?
         notifManager = undefined;
     }
 
-    return true;
+    // @ts-ignore
+    sendResponse({ notifManager });
+    return false;
 });
 
 async function ping(mvHost: string, mvToken: string) {
