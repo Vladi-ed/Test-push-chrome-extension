@@ -35,7 +35,6 @@ chrome.action.onClicked.addListener(async function () {
         origins: ['https://qa-mv-1778/', 'http://qa-mv-00986/']
     });
 
-    // await connect();
     enableDisablePolling();
 });
 
@@ -47,37 +46,36 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'start') {
         // ping(request.mvHost, request.mvToken).then(sendResponse);
 
-        // TODO: do we need to update token?
         if (!notifManager) notifManager = new EventNotificationManager({mvHost: request.mvHost, mvToken: request.mvToken});
         notifManager.start();
+        // injectScript();
     }
     if (request.action === 'stop') {
         notifManager!.stop();
-        // TODO: do we need to kill notifManager?
+        // TODO: do we need to kill notifManager or just run it again wth different token?
         notifManager = undefined;
     }
 
     // @ts-ignore
     sendResponse({ notifManager });
-    return false;
+    return true;
 });
 
-async function ping(mvHost: string, mvToken: string) {
-    console.log('ping()', mvHost);
-    const eventListResp = await getEventList(mvHost, mvToken);
-    console.log('Event List:', eventListResp);
-    enable = true;
-    await chrome.action.setBadgeText({text: String(eventListResp.events.length)});
-    // await chrome.action.setBadgeText({text: String(eventListResp.sequenceNumber)});
-    await chrome.action.setIcon({
-        path: {
-            19: 'images/' + (enable ? 'enabled' : 'disabled') + '-19.png',
-            38: 'images/' + (enable ? 'enabled' : 'disabled') + '-38.png'
+async function injectScript() {
+    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    // require webNavigation permission
+    // const frames = await chrome.webNavigation.getAllFrames({'tabId': tab.id!});
+    // console.log('frames', frames);
+
+    await chrome.scripting.executeScript({
+        target : {tabId : tab.id!},
+        func : () => {
+            document.body.style.backgroundColor = "orange";
+            console.log(document.location.href);
         }
     });
-    return eventListResp.events;
 }
-
 
 function enableDisablePolling() {
     enable = !enable;
@@ -162,13 +160,13 @@ async function stopHeartbeatInterval() {
     clearInterval(heartbeatInterval);
 }
 
-
 chrome.notifications.onClicked.addListener(() => {
+    // if push window clicked
     openUrl('https://cataas.com/cat');
 });
 
 chrome.notifications.onButtonClicked.addListener((_, buttonIndex) => {
-    // if first button clicked
+    // if first push button clicked
     if (buttonIndex == 0) {
         openUrl(chrome.runtime.getURL('index.html'));
     }

@@ -55,7 +55,7 @@ export class EventNotificationManager {
                 const devices = await chrome.audio.getDevices({isActive: true, streamTypes: ['OUTPUT']});
                 console.log('devices[0].level', devices[0].deviceName,  devices[0].level);
 
-                if (await chrome.audio.getMute('OUTPUT')) await showNotification('Error', 'Sound is on Mute');
+                if (await chrome.audio.getMute('OUTPUT')) await showNotification('Error', 'Sound is on Mute', 'images/no_sound.png');
             }
 
         } catch (error) {
@@ -64,12 +64,13 @@ export class EventNotificationManager {
 
             if (this.currentRetries < this.maxRetries) {
                 console.log(`Retrying... Attempt ${this.currentRetries} of ${this.maxRetries}`);
-                await showNotification('Error', 'Unable to check for new events. ' + (error as Error).message);
+                await showNotification('Error', 'Unable to check for new events. ' + (error as Error).message, 'images/error.png');
                 // await new Promise(resolve => setTimeout(resolve, 5000)); // Wait before retrying
             } else {
                 console.error('Max retries reached. Unable to check for new events.');
-                await showNotification('Error', 'Max retries reached. Unable to check for new events.'); // Display notification
+                await showNotification('Error', 'Max retries reached. Unable to check for new events.', 'images/error.png'); // Display notification
                 this.stop();
+                await chrome.storage.local.set({active: false});
             }
         }
     }
@@ -131,8 +132,9 @@ export class EventNotificationManager {
 
     private showNotification(events: EventHeader[]): void {
         // Implement your popup logic here
-        console.log('Showing notification for events:', events);
-        showNotification('New alerts', events.length + ') ' + events[0].name); // Display notification
+        console.log('Showing push notification for events:', events);
+        // TODO: add a notification list
+        showNotification('New alerts (' + events.length + ')', events[0].name, this.mvHost + '/asset-manager-web/images/event_medium.gif'); // Display notification
     }
 
     private injectScript() {
