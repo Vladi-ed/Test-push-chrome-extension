@@ -134,7 +134,11 @@ export class EventNotificationManager {
         // Implement your popup logic here
         console.log('Showing push notification for events:', events);
         // TODO: add a notification list
-        showNotification('New alerts (' + events.length + ')', events[0].name, this.mvHost + '/asset-manager-web/images/event_medium.gif'); // Display notification
+        showNotification(
+            'New alerts (' + events.length + ')',
+            events[0].name,
+            this.mvHost + '/asset-manager-web/images/event_' + events[0].priority.toLowerCase() + '.gif'
+        ); // Display notification
     }
 
     private injectScript() {
