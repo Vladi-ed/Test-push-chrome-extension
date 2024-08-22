@@ -168,7 +168,8 @@ chrome.notifications.onClicked.addListener(() => {
 chrome.notifications.onButtonClicked.addListener((_, buttonIndex) => {
     // if first push button clicked
     if (buttonIndex == 0) {
-        openUrl(chrome.runtime.getURL('index.html'));
+        // openUrl(chrome.runtime.getURL('index.html'));
+        openUrl('http://192.168.60.113/asset-manager-web/am/pages/alerts/alertsMng.jsf');
     }
 })
 

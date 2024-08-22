@@ -142,7 +142,6 @@ export class EventNotificationManager {
     private showNotification(events: EventHeader[]): void {
         // Implement your popup logic here
         console.log('Showing push notification for events:', events);
-        // http://192.168.60.113/asset-manager-web/am/pages/alerts/alertsMng.jsf
 
         // TODO: add a notification list
         showNotification(

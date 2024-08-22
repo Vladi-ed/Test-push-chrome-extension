@@ -14,11 +14,13 @@ let mvToken: string;
 form.addEventListener('submit', handleLogin);
 loginBtn.addEventListener('click', handleLogin);
 logoutBtn.addEventListener('click', handleLogout);
-sendRequestBtn.addEventListener('click', ping);
+sendRequestBtn?.addEventListener('click', ping);
 
 window.addEventListener('offline', () => {
   console.log("The network connection has been lost.");
   document.getElementById('offline-badge')?.classList.remove('hidden');
+  loginBtn.disabled = true;
+  logoutBtn.disabled = true;
 });
 
 // The async IIFE is necessary because Chrome <89 does not support top level await.
