@@ -1,7 +1,5 @@
 import {openUrl} from "./helpers/open-url.ts";
-import {getEventList} from "./inf-api/get-event-list.ts";
 import {EventNotificationManager} from "./helpers/event-notification-manager.ts";
-// import {getCatFact} from "./helpers/get-cat-fact.ts";
 
 let enable = false;
 let heartbeatInterval: number | undefined;
@@ -60,22 +58,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({ notifManager });
     return true;
 });
-
-async function injectScript() {
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-    // require webNavigation permission
-    // const frames = await chrome.webNavigation.getAllFrames({'tabId': tab.id!});
-    // console.log('frames', frames);
-
-    await chrome.scripting.executeScript({
-        target : {tabId : tab.id!},
-        func : () => {
-            document.body.style.backgroundColor = "orange";
-            console.log(document.location.href);
-        }
-    });
-}
 
 function enableDisablePolling() {
     enable = !enable;

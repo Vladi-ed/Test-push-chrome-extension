@@ -2,7 +2,7 @@ export async function openUrl(url: string) {
     try {
         const current = await chrome.windows.getCurrent(); // may be a popup window
         if (current.id) {
-            chrome.windows.update(current.id, {focused: true, state: 'maximized'});
+            await chrome.windows.update(current.id, {focused: true, state: 'maximized'});
             await chrome.tabs.create({url, active: true});
         }
     } catch (e) {

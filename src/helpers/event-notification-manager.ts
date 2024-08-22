@@ -4,12 +4,12 @@ import {loginUser} from "../inf-api/login-user.ts";
 import { showNotification } from "./show-notification.ts";
 
 export class EventNotificationManager {
-    private mvHost: string;
+    private readonly mvHost: string;
     private mvToken: string;
     private checkInterval = 2000; // Default to 2 seconds
     private intervalId: any = null;
     private lastEvents: Map<EventHeader['id'], EventHeader> = new Map();
-    private maxRetries: number = 2;
+    private readonly maxRetries: number = 2;
     private currentRetries = 0;
 
     constructor(config: {
@@ -149,21 +149,6 @@ export class EventNotificationManager {
             events[0].name,
             this.mvHost + '/asset-manager-web/images/event_' + events[0].priority.toLowerCase() + '.gif'
         );
-    }
-
-    private injectScript() {
-        function injectedFunction() {
-            document.body.style.backgroundColor = "orange";
-        }
-
-        chrome.action.onClicked.addListener((tab) => {
-            chrome.scripting.executeScript({
-                target : {tabId : tab.id!},
-                func : injectedFunction,
-            });
-        });
-
-        // When injecting as a function, you can also pass arguments to the function.
     }
 }
 
