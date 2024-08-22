@@ -1,6 +1,6 @@
 import './style.css'
-import {getLastHeartbeat} from "./helpers/getLastHeartbeat.ts";
-import {getCatFact} from "./helpers/getCatFact.ts";
+import {getLastHeartbeat} from "./helpers/get-last-heartbeat.ts";
+import {getCatFact} from "./helpers/get-cat-fact.ts";
 
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `

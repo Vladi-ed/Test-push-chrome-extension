@@ -1,7 +1,7 @@
-import {openUrl} from "./helpers/openUrl.ts";
+import {openUrl} from "./helpers/open-url.ts";
 import {getEventList} from "./inf-api/get-event-list.ts";
 import {EventNotificationManager} from "./helpers/event-notification-manager.ts";
-// import {getCatFact} from "./helpers/getCatFact.ts";
+// import {getCatFact} from "./helpers/get-cat-fact.ts";
 
 let enable = false;
 let heartbeatInterval: number | undefined;

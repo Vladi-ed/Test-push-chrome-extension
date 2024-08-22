@@ -1,7 +1,7 @@
 import {getEventList} from "../inf-api/get-event-list.ts";
 import {EventHeader} from "../inf-api/data-types.ts";
 import {loginUser} from "../inf-api/login-user.ts";
-import { showNotification } from "./showNotification.ts";
+import { showNotification } from "./show-notification.ts";
 
 export class EventNotificationManager {
     private mvHost: string;
@@ -28,6 +28,7 @@ export class EventNotificationManager {
             console.log('Event notification manager started');
         }
         else console.log('Event notification manager already started');
+        chrome.action.setTitle({ title: 'INF service started' });
     }
 
     public stop(): void {
@@ -36,6 +37,8 @@ export class EventNotificationManager {
             this.intervalId = null;
             console.log('Event notification manager stopped');
         }
+        chrome.action.setTitle({ title: 'INF service stopped' });
+        chrome.action.setBadgeText({text: ''});
     }
 
     private async checkForNewEvents(): Promise<void> {
@@ -127,18 +130,26 @@ export class EventNotificationManager {
             // removedEventIds.forEach(id => this.lastEvents.delete(id));
             // You might want to handle removed events differently, e.g., update UI
         }
+
+        if (this.lastEvents.size) {
+            const text = String(this.lastEvents.size);
+            chrome.action.setBadgeText({text});
+            chrome.action.setTitle({ title: 'You have ' + text + ' new notification(s)' });
+        }
     }
 
 
     private showNotification(events: EventHeader[]): void {
         // Implement your popup logic here
         console.log('Showing push notification for events:', events);
+        // http://192.168.60.113/asset-manager-web/am/pages/alerts/alertsMng.jsf
+
         // TODO: add a notification list
         showNotification(
             'New alerts (' + events.length + ')',
             events[0].name,
             this.mvHost + '/asset-manager-web/images/event_' + events[0].priority.toLowerCase() + '.gif'
-        ); // Display notification
+        );
     }
 
     private injectScript() {
