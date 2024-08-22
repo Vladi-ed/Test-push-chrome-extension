@@ -12,39 +12,5 @@
   </body>
 </html>
 
-<!--useful links-->
-<!--https://developer.chrome.com/docs/extensions/develop/concepts/permission-warnings#warnings-->
-<!--https://developer.chrome.com/docs/extensions/develop/concepts/activeTab-->
-
-
-<!--In order to deploy the extension self-hosted you need these policies:-->
-<!-- - ExtensionInstallForcelist (to automatically install and not able to disable)-->
-<!--or-->
-<!-- - ExtensionInstallSources-->
-<!-- - ExtensionInstallAllowlist-->
-<!--to allow user to install it from a specific website.-->
-
-<!--Example reg file:-->
-
-<!--Windows Registry Editor Version 5.00-->
-
-<!--[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome]-->
-
-<!--[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome\ExtensionInstallAllowlist]-->
-<!--"1"="bedjhbdnaijpdihemaemopkddmihhfjc"-->
-
-<!--[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome\ExtensionInstallForcelist]-->
-<!--"1"="bedjhbdnaijpdihemaemopkddmihhfjc;https://vladi.pages.dev/release/manifest.xml"-->
-
-<!--[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome\ExtensionInstallSources]-->
-<!--"1"="https://vladi.pages.dev/*"-->
-
-<!--pin extesion-->
-<!--https://support.google.com/chrome/a/thread/208937173?hl=en&sjid=906614424111044523-EU-->
-<!--https://chromeenterprise.google/policies/#ExtensionSettings-->
-
-<!--Load extention in dev mode-->
-<!--https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked-->
-
 <!--get extension storage content-->
 <!--on chrome://extensions/ type chrome.storage.local.get(console.log)-->
