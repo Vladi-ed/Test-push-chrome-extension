@@ -1,6 +1,7 @@
 import {loginUser} from "../inf-api/login-user";
 import {getEventList} from "../inf-api/get-event-list";
 import {logoutUser} from "../inf-api/logout-user";
+import {ExtensionStorage} from "../helpers/extension-storage.ts";
 
 const form = document.getElementById('control-row') as HTMLFormElement;
 const formData = form.querySelectorAll('input')
@@ -25,14 +26,17 @@ window.addEventListener('offline', () => {
 
 // The async IIFE is necessary because Chrome <89 does not support top level await.
 (async function initPopupWindow() {
+  const host = await ExtensionStorage.getLastHost();
+  if (!host) return;
 
-  const { user, passw, host, active } = await chrome.storage.local.get(['user', 'passw', 'host', 'active']);
-  console.log('Saved Host and User', host, user);
+  const {user, passw, active} = await ExtensionStorage.getHostOptions(host);
+  console.log('Host and User', host, user, active ? 'active' : '');
+
+  formData.item(0).value = host;
   mvHost = host;
-  if (host) formData.item(0).value = host;
+
   if (user) formData.item(1).value = user;
   if (passw) formData.item(2).value = atob(passw);
-
   if (active) {
     console.debug('active login', active);
     loginBtn.disabled = true;
@@ -48,7 +52,7 @@ async function handleLogin() {
   const passw = formData.item(2).value || '';
 
   try {
-    await chrome.storage.local.set({ user, passw: btoa(passw), host: mvHost });
+    await ExtensionStorage.setHostOptions(mvHost, { user, passw: btoa(passw) });
     await chrome.permissions.request({ // chrome.permissions.contains({})
       permissions: ['cookies', 'scripting'],
       origins: [mvHost + '/']
@@ -62,7 +66,7 @@ async function handleLogin() {
     setFormMessage('Logged in as ' + loginResp.user.firstName + ' ' + loginResp.user.lastName);
 
     await chrome.runtime.sendMessage({action: 'start', mvHost, mvToken});
-    await chrome.storage.local.set({ active: true });
+    await ExtensionStorage.setHostOptions(mvHost, { active: true });
   }
   catch (e) {
     loginBtn.disabled = false;
@@ -75,7 +79,7 @@ async function handleLogout(event: Event) {
   event.preventDefault();
   logoutBtn.disabled = true;
   try {
-    await chrome.storage.local.set({ active: false });
+    await ExtensionStorage.setHostOptions(mvHost, { active: false });
     await chrome.runtime.sendMessage({action: 'stop', mvHost});
 
     const resp = await logoutUser(mvHost);

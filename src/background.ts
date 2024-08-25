@@ -1,5 +1,6 @@
 import {openUrl} from "./helpers/open-url.ts";
 import {EventNotificationManager} from "./helpers/event-notification-manager.ts";
+import {ExtensionStorage} from "./helpers/extension-storage.ts";
 
 let enable = false;
 let heartbeatInterval: number | undefined;
@@ -7,22 +8,25 @@ let notifManager: EventNotificationManager | undefined;
 
 chrome.runtime.onInstalled.addListener(({ reason }) => {
     // if (reason === chrome.runtime.OnInstalledReason.INSTALL)
-        console.log('onInstalled', reason);
-        chrome.storage.local.set({ active: false });
+    console.log('onInstalled', reason);
 
-        /*
-        "install" Specifies the event reason as an installation.
-        "update" Specifies the event reason as an extension update.
-        "chrome_update" Specifies the event reason as a Chrome update.
-        "shared_module_update" Specifies the event reason as an update to a shared module.
-         */
+    ExtensionStorage.getLastHost().then(host => {
+        if (host) ExtensionStorage.setHostOptions(host, { active: false });
+    });
+
+    /*
+    "install" Specifies the event reason as an installation.
+    "update" Specifies the event reason as an extension update.
+    "chrome_update" Specifies the event reason as a Chrome update.
+    "shared_module_update" Specifies the event reason as an update to a shared module.
+     */
 });
 
 
 // on startup when the browser starts up
 chrome.runtime.onStartup.addListener(function () {
     console.log('onStartup');
-    enableDisablePolling();
+    // enableDisablePolling();
 });
 
 // Fired when an action icon is clicked. This event will not fire if the action has a popup.

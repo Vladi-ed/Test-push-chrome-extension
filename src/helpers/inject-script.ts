@@ -9,7 +9,7 @@ export async function injectScript() {
     await chrome.scripting.executeScript({
         target : {tabId : tab.id!},
         func : () => {
-            document.body.style.backgroundColor = "orange";
+            document.body.style.backgroundColor = 'orange';
             console.log(document.location.href);
         }
     });

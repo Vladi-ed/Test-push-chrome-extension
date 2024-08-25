@@ -2,6 +2,7 @@ import {getEventList} from "../inf-api/get-event-list.ts";
 import {EventHeader} from "../inf-api/data-types.ts";
 import {loginUser} from "../inf-api/login-user.ts";
 import { showNotification } from "./show-notification.ts";
+import {ExtensionStorage} from "./extension-storage.ts";
 
 export class EventNotificationManager {
     private readonly mvHost: string;
@@ -73,26 +74,30 @@ export class EventNotificationManager {
                 console.error('Max retries reached. Unable to check for new events.');
                 await showNotification('Error', 'Max retries reached. Unable to check for new events.', 'images/error.png'); // Display notification
                 this.stop();
-                await chrome.storage.local.set({active: false});
+                await ExtensionStorage.setHostOptions(this.mvHost, { active: false });
             }
         }
     }
 
-    private async reLogin(): Promise<void> {
-        const { user, passw } = await chrome.storage.local.get(['user', 'passw']);
+    async login(user: string, passw: string) {
+        const loginResponse = await loginUser(this.mvHost, user, passw);
+        this.mvToken = loginResponse.token;
+    }
+
+    private async reLogin() {
+        const { user, passw } = await ExtensionStorage.getHostOptions(this.mvHost);
 
         if (!user || !passw) {
             throw new Error('Login credentials not found');
         }
 
-        const loginResponse = await loginUser(this.mvHost, user, atob(passw));
-        this.mvToken = loginResponse.token;
+        await this.login(user, atob(passw));
     }
 
     private updateEvents(newEvents: EventHeader[]): void {
         if (newEvents.length === 0) return;
 
-        // Find brand new events (events in newEvents but not in lastEvents) and have status NEW
+        // Find brand-new events (events in newEvents but not in lastEvents) and have status NEW
         const brandNewEvents = newEvents.filter(event =>
             !this.lastEvents.has(event.id) &&
             event.status === 'NEW'
