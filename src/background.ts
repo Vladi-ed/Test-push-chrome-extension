@@ -50,12 +50,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         if (!notifManager) notifManager = new EventNotificationManager({mvHost: request.mvHost, mvToken: request.mvToken});
         notifManager.start();
+
+        chrome.action.setIcon({
+            path: {
+                19: 'images/enabled-19.png',
+                38: 'images/enabled-38.png'
+            }
+        });
         // injectScript();
     }
     if (request.action === 'stop') {
         notifManager!.stop();
         // TODO: do we need to kill notifManager or just run it again wth different token?
         notifManager = undefined;
+
+        chrome.action.setIcon({
+            path: {
+                19: 'images/disabled-19.png',
+                38: 'images/disabled-38.png'
+            }
+        });
     }
 
     // @ts-ignore

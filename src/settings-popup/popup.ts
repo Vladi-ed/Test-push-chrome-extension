@@ -4,7 +4,7 @@ import {logoutUser} from "../inf-api/logout-user";
 import {ExtensionStorage} from "../helpers/extension-storage.ts";
 
 const form = document.getElementById('control-row') as HTMLFormElement;
-const formData = form.querySelectorAll('input')
+const formData = form.querySelectorAll('input');
 const message = document.getElementById('message') as HTMLDivElement;
 const loginBtn = document.getElementById('login-btn') as HTMLButtonElement;
 const logoutBtn = document.getElementById('logout-btn') as HTMLButtonElement;
@@ -61,6 +61,7 @@ async function handleLogin() {
     const loginResp = await loginUser(mvHost, user, passw);
     mvToken = loginResp.token;
     console.log('Login Response:', loginResp);
+
     formData.item(2).disabled = true; // disable password field
     logoutBtn.disabled = false;
     setFormMessage('Logged in as ' + loginResp.user.firstName + ' ' + loginResp.user.lastName);
@@ -79,11 +80,12 @@ async function handleLogout(event: Event) {
   event.preventDefault();
   logoutBtn.disabled = true;
   try {
-    await ExtensionStorage.setHostOptions(mvHost, { active: false });
+    await ExtensionStorage.setHostOptions(mvHost, { active: false }); // todo: consider removing the password from the storage
     await chrome.runtime.sendMessage({action: 'stop', mvHost});
-
     const resp = await logoutUser(mvHost);
-    setFormMessage(JSON.stringify(resp));
+    if (resp.resultType == 'Ok') setFormMessage('Logout Successful');
+    else setFormMessage('Something went wrong...')
+
     formData.item(2).disabled = false; // enable password field
     loginBtn.disabled = false; // enable login button
   }

@@ -132,7 +132,7 @@ export class EventNotificationManager {
         if (removedEventIds.length > 0) {
             console.log('Events to be removed:', removedEventIds);
             // Remove these events from lastEvents
-            // removedEventIds.forEach(id => this.lastEvents.delete(id));
+            removedEventIds.forEach(id => this.lastEvents.delete(id));
             // You might want to handle removed events differently, e.g., update UI
         }
 
