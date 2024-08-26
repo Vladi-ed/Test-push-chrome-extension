@@ -29,4 +29,5 @@ interface HostOptions {
     user: string;
     passw: string;
     active: boolean;
+    lastHeartbeat: number;
 }

@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
   "name": "INF Push extension",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "permissions": ["notifications", "storage", "background"],
   "optional_permissions": ["cookies", "scripting"],
   "optional_host_permissions": ["*://*/*"],
   "action": {
-    "default_popup": "src/settings-popup/popup.html",
+    "default_popup": "src/front-end/popup.html",
     "default_title": "INF extension",
     "default_icon": {
       "19": "images/disabled-19.png",
@@ -14,7 +14,7 @@
     }
   },
   "background": {
-    "service_worker": "src/background.ts",
+    "service_worker": "src/back-end/background.ts",
     "type": "module"
   },
   "update_url": "https://vladi.pages.dev/release/manifest.xml",

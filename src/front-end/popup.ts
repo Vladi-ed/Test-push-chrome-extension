@@ -114,7 +114,7 @@ function setFormMessage(str: string) {
   message.hidden = false;
 }
 
-function clearMessage() {
-  message.hidden = true;
-  message.textContent = '';
-}
+// function clearMessage() {
+//   message.hidden = true;
+//   message.textContent = '';
+// }

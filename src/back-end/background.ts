@@ -1,6 +1,6 @@
-import {openUrl} from "./helpers/open-url.ts";
-import {EventNotificationManager} from "./helpers/event-notification-manager.ts";
-import {ExtensionStorage} from "./helpers/extension-storage.ts";
+import {openUrl} from "./open-url";
+import {EventNotificationManager} from "./event-notification-manager";
+import {ExtensionStorage} from "./../helpers/extension-storage";
 
 let enable = false;
 let heartbeatInterval: number | undefined;
@@ -104,8 +104,7 @@ async function runHeartbeat() {
     const option = Math.floor((Math.random() * 4) + 1);
     const pageUrl = chrome.runtime.getURL('index.html');
 
-    const sessionCookie = await chrome
-        .cookies?.get({ name: 'JSESSIONID', url: 'https://qa-mv-1778/asset-manager-web' });
+    const sessionCookie = await chrome.cookies?.get({ name: 'JSESSIONID', url: 'https://qa-mv-1778/asset-manager-web' });
     console.log('MV JSESSIONID cookie', sessionCookie);
 
     // const sessionCookies = await chrome.cookies.getAll({ name: 'JSESSIONID', domain: 'qa-mv-1778' });
@@ -162,15 +161,29 @@ async function stopHeartbeatInterval() {
 
 chrome.notifications.onClicked.addListener(() => {
     // if push window clicked
-    openUrl('https://cataas.com/cat');
+    activateMV('http://192.168.60.113/asset-manager-web');
 });
 
-chrome.notifications.onButtonClicked.addListener((_, buttonIndex) => {
+chrome.notifications.onButtonClicked.addListener(async (_, buttonIndex) => {
+    // more info about Notification actions: https://stackoverflow.com/questions/20188792/is-there-any-way-to-insert-action-buttons-in-notification-in-google-chrome#answer-20190702
     // if first push button clicked
     if (buttonIndex == 0) {
         // openUrl(chrome.runtime.getURL('index.html'));
-        openUrl('http://192.168.60.113/asset-manager-web/am/pages/alerts/alertsMng.jsf');
+        // openUrl('http://192.168.60.113/asset-manager-web/am/pages/alerts/alertsMng.jsf');
+        activateMV('http://192.168.60.113/asset-manager-web');
     }
 })
+
+async function activateMV(url: string) {
+    console.log('try to focus MV tab');
+
+    const host = new URL(url).origin;
+    const mvTab = await chrome.tabs.query({url: host + '/*'});
+
+    if (mvTab[0]?.id) {
+        await chrome.windows.update(mvTab[0].windowId, {focused: true});
+        await chrome.tabs.update(mvTab[0].id, {active: true, highlighted: true});
+    } else await openUrl(url);
+}
 
 

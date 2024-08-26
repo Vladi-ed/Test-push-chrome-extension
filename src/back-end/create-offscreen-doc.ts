@@ -1,5 +1,5 @@
-let creating; // A global promise to avoid concurrency issues
-async function setupOffscreenDocument(path) {
+let creating: Promise<void> | null; // A global promise to avoid concurrency issues
+async function setupOffscreenDocument(path: string) {
     // Check all windows controlled by the service worker to see if one
     // of them is the offscreen document with the given path
     const offscreenUrl = chrome.runtime.getURL(path);

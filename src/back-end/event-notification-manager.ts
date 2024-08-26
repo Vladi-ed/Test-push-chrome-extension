@@ -1,8 +1,8 @@
-import {getEventList} from "../inf-api/get-event-list.ts";
-import {EventHeader} from "../inf-api/data-types.ts";
-import {loginUser} from "../inf-api/login-user.ts";
-import { showNotification } from "./show-notification.ts";
-import {ExtensionStorage} from "./extension-storage.ts";
+import {getEventList} from "../inf-api/get-event-list";
+import {EventHeader} from "../inf-api/data-types";
+import {loginUser} from "../inf-api/login-user";
+import {showNotification, showNotificationList} from "./show-notification";
+import {ExtensionStorage} from "./../helpers/extension-storage";
 
 export class EventNotificationManager {
     private readonly mvHost: string;
@@ -43,6 +43,8 @@ export class EventNotificationManager {
     }
 
     private async checkForNewEvents(): Promise<void> {
+        await ExtensionStorage.setHostOptions(this.mvHost, { lastHeartbeat: new Date().getTime() });
+
         try {
             const apiResponse = await getEventList(this.mvHost, this.mvToken);
 
@@ -145,14 +147,15 @@ export class EventNotificationManager {
 
 
     private showNotification(events: EventHeader[]): void {
-        // Implement your popup logic here
-        console.log('Showing push notification for events:', events);
+        // showNotification(
+        //     'New alerts (' + events.length + ')',
+        //     events[0].name,
+        //     this.mvHost + '/asset-manager-web/images/event_' + events[0].priority.toLowerCase() + '.gif'
+        // );
 
-        // TODO: add a notification list
-        showNotification(
+        showNotificationList(
             'New alerts (' + events.length + ')',
-            events[0].name,
-            this.mvHost + '/asset-manager-web/images/event_' + events[0].priority.toLowerCase() + '.gif'
+            events.map(event => ({title: event.name, message: String(event.priority)}))
         );
     }
 }
