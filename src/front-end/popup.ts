@@ -1,5 +1,4 @@
 import {loginUser} from "../inf-api/login-user";
-import {getEventList} from "../inf-api/get-event-list";
 import {logoutUser} from "../inf-api/logout-user";
 import {ExtensionStorage} from "../helpers/extension-storage.ts";
 
@@ -15,7 +14,7 @@ let mvToken: string;
 form.addEventListener('submit', handleLogin);
 loginBtn.addEventListener('click', handleLogin);
 logoutBtn.addEventListener('click', handleLogout);
-sendRequestBtn?.addEventListener('click', ping);
+// sendRequestBtn?.addEventListener('click', ping);
 
 window.addEventListener('offline', () => {
   console.log("The network connection has been lost.");
@@ -23,6 +22,8 @@ window.addEventListener('offline', () => {
   loginBtn.disabled = true;
   logoutBtn.disabled = true;
 });
+
+formData.item(0).addEventListener('focusout', checkPermissions);
 
 // The async IIFE is necessary because Chrome <89 does not support top level await.
 (async function initPopupWindow() {
@@ -34,6 +35,7 @@ window.addEventListener('offline', () => {
 
   formData.item(0).value = host;
   mvHost = host;
+  await checkPermissions();
 
   if (user) formData.item(1).value = user;
   if (passw) formData.item(2).value = atob(passw);
@@ -46,12 +48,14 @@ window.addEventListener('offline', () => {
 })();
 
 async function handleLogin() {
+  if (!form.checkValidity()) return;
   loginBtn.disabled = true;
-  mvHost = formData.item(0).value ? new URL(formData.item(0).value).origin : 'http://192.168.108.176';
-  const user = formData.item(1).value || 'system';
-  const passw = formData.item(2).value || '';
-
+  setFormMessage('Trying to login...');
   try {
+    mvHost = new URL(formData.item(0).value).origin; // formData.item(0).value ? new URL(formData.item(0).value).origin : 'http://192.168.108.176';
+    const user = formData.item(1).value || 'system';
+    const passw = formData.item(2).value;
+
     await ExtensionStorage.setHostOptions(mvHost, { user, passw: btoa(passw) });
     await chrome.permissions.request({ // chrome.permissions.contains({})
       permissions: ['cookies', 'scripting'],
@@ -96,25 +100,34 @@ async function handleLogout(event: Event) {
   }
 }
 
-async function ping() {
-  console.log('ping()', mvHost);
-  const eventListResp = await getEventList(mvHost, mvToken);
-  console.log('Event List:', eventListResp);
-  setFormMessage(JSON.stringify(eventListResp));
-
-  // const sessionCookie = await chrome
-  //     .cookies?.getAll({ name: 'JSESSIONID' });
-  // console.log('Extension JSESSIONID cookie', sessionCookie);
-
-  return eventListResp;
-}
-
 function setFormMessage(str: string) {
   message.textContent = str;
   message.hidden = false;
 }
 
-// function clearMessage() {
-//   message.hidden = true;
-//   message.textContent = '';
-// }
+function clearMessage() {
+  message.hidden = true;
+  message.textContent = '';
+}
+
+async function checkPermissions() {
+  try {
+    const havePermissions = await chrome.permissions.contains({
+      permissions: ['cookies', 'scripting'],
+      origins: [new URL(formData.item(0).value).origin + '/']
+    });
+
+    if (!havePermissions) {
+      loginBtn.textContent = 'Request permissions'
+      setFormMessage('The INF extension needs your permission to access MobileView')
+    }
+    else {
+      loginBtn.textContent = 'Login';
+      clearMessage();
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+}
+
